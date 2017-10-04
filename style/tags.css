@@ -1,0 +1,14 @@
+.tags {
+    margin-right: 14px !important;
+    margin-top: 8px !important;
+}
+
+.suggestWrapper {
+	position: relative;
+	display:inline-block;
+}
+
+.suggestSelect {
+	max-width:140px;
+	position: relative;
+}

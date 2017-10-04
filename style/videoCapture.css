@@ -1,0 +1,88 @@
+.player {
+	/*float:left;*/
+	-webkit-transition: opacity 0.5s;
+	-moz-transition: opacity 0.5s;
+	-o-transition: opacity 0.5s;
+	transition: opacity 0.5s;
+}
+
+.playerWhileUploading {
+	pointer-events:none;
+	opacity: 0.20;
+}
+
+.uploading{
+    text-align: center;
+    color: #000;
+    left: 0;
+    top: 0;
+    position: absolute;
+    padding: 0 5%;
+    right: 0;
+    margin: auto;
+}
+
+.uploadFromDeviceLabel {
+	text-align: center;
+    width: 140px;
+    padding: 14px;
+    cursor: pointer;
+    color: #3a95d2;
+    display: block;
+    margin: auto;
+}
+
+.alternativeContainer {
+	margin-top:16px;
+	color:#666;
+	display:inline-block;
+	text-align: center;
+}
+
+.alternativeInputLabel {
+	position: relative;
+	cursor: pointer;
+	padding:8px;
+}
+
+.alternativeInputLabel:hover, .uploadFromDeviceLabel:hover {
+	background: rgba(150,150,150,0.2);
+}
+
+.alternativeInputLabel span {
+	vertical-align: middle;
+	font-weight: 500;
+	color: #3a95d2;
+    font-size: 14px;
+}
+
+.alternativeInputLabel svg {
+	vertical-align: middle;
+	color: #3a95d2 !important;
+	margin-right: 8px;
+}
+
+.uploadFromDeviceLabel svg {
+	color: #3a95d2 !important;
+}
+
+.alternativeInputLabel:focus {
+	outline: 1px dotted #000;
+	outline: -webkit-focus-ring-color auto 5px;
+}
+
+.alternativeInputLabel input, .uploadFromDeviceLabel input {
+	width: 0.1px;
+	height: 0.1px;
+	opacity: 0;
+	overflow: hidden;
+	position: absolute;
+	z-index: -1;
+}
+
+.backBrowserCamera {
+	margin:10px 10px 0 !important;
+	border:1px dashed rgba(200,200,200,0.7) !important;
+	padding:50px 40px !important;
+	height:140px !important;
+}

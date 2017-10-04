@@ -1,0 +1,25 @@
+.videoRecorder{
+	position: relative;
+}
+
+.videoRecorder.recorderLandscapeOnly::after {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    content: "SWITCH TO LANDSCAPE";
+    color: red;
+    text-shadow: 1px 1px 8px black;
+    font-weight: 600;
+    font-size: 20px;
+}
+
+.videoRecorder.recorderResized::after {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    content: "VIDEO RESIZED. PAGE WILL RELOAD";
+    color: red;
+    text-shadow: 1px 1px 8px black;
+    font-weight: 600;
+    font-size: 20px;
+}

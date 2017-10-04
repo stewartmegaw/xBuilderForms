@@ -1,0 +1,33 @@
+{
+  "name": "xbuilder-forms",
+  "version": "0.1.36",
+  "description": "",
+  "main": "dist/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/stewartmegaw/xBuilderForms.git"
+  },
+  "author": "Stewart Megaw <stew@glide.design> (http://glide.design)",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/stewartmegaw/xBuilderForms/issues"
+  },
+  "homepage": "https://github.com/stewartmegaw/xBuilderForms#readme",
+  "devDependencies": {
+   "material-ui": "0.16.7",
+   "react": "15.4.2",
+   "react-dom": "15.4.2",
+   "react-tap-event-plugin": "^2.0.1",
+   "validate.js": "^0.11.1",
+   "videojs-record": "^1.6.0",
+   "whatwg-fetch": "^2.0.3",
+   "recordrtc": "*",
+   "jquery-param": "^0.2.0",
+   "google-maps-api": "^2.0.1",
+   "date-util": "^1.2.1",
+   "video.js": "^5.12.6"
+  }
+}

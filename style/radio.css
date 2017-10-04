@@ -1,0 +1,8 @@
+.spacer {
+   height: 20px;
+   display: inline-block;
+   width: 1px;
+}
+.label {
+	margin-bottom: 10px;
+}
