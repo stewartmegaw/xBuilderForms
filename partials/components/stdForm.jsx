@@ -6,7 +6,7 @@ import 'whatwg-fetch';
 
 import intersect from 'boundless-utils-object-intersection';
 
-var style = require('alpha-client-lib/style/form.css');
+var style = require('xbuilder-forms/style/form.css');
 
 const StdForm = React.createClass({
 	validate:function(json_success_cb, event){

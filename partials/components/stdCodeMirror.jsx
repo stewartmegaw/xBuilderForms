@@ -11,7 +11,7 @@ require('codemirror/mode/htmlmixed/htmlmixed');
 require('codemirror/mode/markdown/markdown');
 require('codemirror/addon/display/fullscreen');
 
-require('../../style/codeMirror.gcss');
+require('xbuilder-forms/style/codeMirror.gcss');
 
 var StdCodeMirror = React.createClass({
   onFocusChange: function(focused) {

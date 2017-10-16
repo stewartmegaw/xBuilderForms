@@ -2,7 +2,7 @@ const React = require('react');
 
 var validate = require("validate.js");
 
-var style = require('alpha-client-lib/style/file.css');
+var style = require('xbuilder-forms/style/file.css');
 
 const StdFile = React.createClass({
 	getInitialState:function() {

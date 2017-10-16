@@ -3,11 +3,11 @@
 
 const React = require('react');
 
-var StdForm = require('alpha-client-lib/partials/forms/stdForm');
+var StdForm = require('xbuilder-forms/partials/components/stdForm');
 
-require('alpha-client-lib/style/global.gcss');
+require('xbuilder-forms/style/global.gcss');
 
-const AppState = require('alpha-client-lib/lib/appState');
+const AppState = require('xbuilder-core/lib/appState');
 
 const parseUrl = require('parse-url');
 
@@ -100,6 +100,9 @@ const FormBuilder = React.createClass({
 
 		return s;
 	},
+	updateData(newData, cb){
+		this.setState({data:Object.assign(this.state.data,newData ||{})}, cb);
+	},
 	componentDidMount(){
 		// Get the components async or we will have a lot of used code
 		if(!serverSide)
@@ -116,7 +119,7 @@ const FormBuilder = React.createClass({
 					case 'textarea':
 						if(!components.stdTextField)
 							require.ensure([], (require) => {
-				                  components.stdTextField = require('alpha-client-lib/partials/forms/stdTextField');
+				                  components.stdTextField = require('xbuilder-forms/partials/components/stdTextField');
 				                  _this.setState({components:components}, _this.componentsLoaded);
 				            });
 						break;
@@ -124,70 +127,70 @@ const FormBuilder = React.createClass({
 					case 'multiSelect':
 						if(!components.stdSelect)
 							require.ensure([], (require) => {
-				                  components.stdSelect = require('alpha-client-lib/partials/forms/stdSelect');
+				                  components.stdSelect = require('xbuilder-forms/partials/components/stdSelect');
 				                  _this.setState({components:components}, _this.componentsLoaded);
 				            });
 						break;
 					// case 'multiSelect':
 					// 	if(!components.stdMultiSelect)
 					// 		require.ensure([], (require) => {
-				 //                  components.stdMultiSelect = require('alpha-client-lib/partials/forms/stdMultiSelect');
+				 //                  components.stdMultiSelect = require('xbuilder-forms/partials/components/stdMultiSelect');
 				 //                  _this.setState({components:components}, _this.componentsLoaded);
 				 //            });
 					// 	break;
 					case 'date':
 						if(!components.stdDatePicker)
 							require.ensure([], (require) => {
-				                  components.stdDatePicker = require('alpha-client-lib/partials/forms/stdDatePicker');
+				                  components.stdDatePicker = require('xbuilder-forms/partials/components/stdDatePicker');
 				                  _this.setState({components:components}, _this.componentsLoaded);
 				            });
 						break;
 					case 'placeSuggest':
 						if(!components.stdPlaceSuggest)
 							require.ensure([], (require) => {
-				                  components.stdPlaceSuggest = require('alpha-client-lib/partials/forms/stdPlaceSuggest');
+				                  components.stdPlaceSuggest = require('xbuilder-forms/partials/components/stdPlaceSuggest');
 				                  _this.setState({components:components}, _this.componentsLoaded);
 				            });
 						break;
 					case 'videoCapture':
 						if(!components.stdVideoCapture)
 							require.ensure([], (require) => {
-				                  components.stdVideoCapture = require('alpha-client-lib/partials/forms/stdVideoCapture');
+				                  components.stdVideoCapture = require('xbuilder-forms/partials/components/stdVideoCapture');
 				                  _this.setState({components:components}, _this.componentsLoaded);
 				            });
 						break;
 					case 'tagSuggest':
 						if(!components.stdTagSuggest)
 							require.ensure([], (require) => {
-				                  components.stdTagSuggest = require('alpha-client-lib/partials/forms/stdTagSuggest');
+				                  components.stdTagSuggest = require('xbuilder-forms/partials/components/stdTagSuggest');
 				                  _this.setState({components:components}, _this.componentsLoaded);
 				            });
 						break;
 					case 'radio':
 						if(!components.stdRadio)
 							require.ensure([], (require) => {
-				                  components.stdRadio = require('alpha-client-lib/partials/forms/stdRadio');
+				                  components.stdRadio = require('xbuilder-forms/partials/components/stdRadio');
 				                  _this.setState({components:components}, _this.componentsLoaded);
 				            });
 						break;
 					case 'location':
 						if(!components.stdLocation)
 							require.ensure([], (require) => {
-				                  components.stdLocation = require('alpha-client-lib/partials/forms/stdLocation');
+				                  components.stdLocation = require('xbuilder-forms/partials/components/stdLocation');
 				                  _this.setState({components:components}, _this.componentsLoaded);
 				            });
 						break;
 					case 'codeMirror':
 						if(!components.stdCodeMirror)
 							require.ensure([], (require) => {
-				                  components.stdCodeMirror = require('alpha-client-lib/partials/forms/stdCodeMirror');
+				                  components.stdCodeMirror = require('xbuilder-forms/partials/components/stdCodeMirror');
 													_this.setState({components:components}, _this.componentsLoaded);
 				            });
 						break;
 					case 'file':
 						if(!components.stdFile)
 							require.ensure([], (require) => {
-				                  components.stdFile = require('alpha-client-lib/partials/forms/stdFile');
+				                  components.stdFile = require('xbuilder-forms/partials/components/stdFile');
 													_this.setState({components:components}, _this.componentsLoaded);
 				            });
 						break;
@@ -195,7 +198,7 @@ const FormBuilder = React.createClass({
 					case 'submit':
 						if(!components.stdButton)
 							require.ensure([], (require) => {
-				                  components.stdButton = require('alpha-client-lib/partials/forms/stdButton');
+				                  components.stdButton = require('xbuilder-forms/partials/components/stdButton');
 				                  _this.setState({components:components}, _this.componentsLoaded);
 				            });
 						break;

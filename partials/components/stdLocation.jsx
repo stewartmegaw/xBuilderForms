@@ -1,10 +1,10 @@
 const React = require('react');
 
-const AppState = require('alpha-client-lib/lib/appState');
+const AppState = require('xbuilder-core/lib/appState');
 var validate = require("validate.js");
 import TextField from 'material-ui/TextField';
 var StdPlaceSuggest = require('./stdPlaceSuggest');
-var Geocode = require('../../lib/geocode');
+var Geocode = require('xbuilder-core/lib/geocode');
 
 var apiKey = AppState.getProp('config.maps_api_key');
 if(!serverSide && apiKey)

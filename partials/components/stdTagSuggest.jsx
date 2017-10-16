@@ -11,7 +11,7 @@ import AddSVG from 'material-ui/svg-icons/content/add';
 
 const tagsStyle = require('../../style/tags.css');
 
-const Loading = require('alpha-client-lib/partials/helpers/loading');
+const Loading = require('xbuilder-core/helpers/loading');
 
 const StdTagSuggest = React.createClass({
 	getInitialState:function() {

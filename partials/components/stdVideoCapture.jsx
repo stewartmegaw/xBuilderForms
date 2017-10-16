@@ -2,9 +2,9 @@ const React = require('react');
 
 const VideoRecorder = require('alpha-client-lib/partials/video/videoRecorder');
 const VideoPlayer = require('alpha-client-lib/partials/video/videoPlayer');
-const FileUtils = require('alpha-client-lib/lib/fileUtils');
+const FileUtils = require('xbuilder-core/lib/fileUtils');
 
-const Loading = require('alpha-client-lib/partials/helpers/loading');
+const Loading = require('xbuilder-core/helpers/loading');
 
 
 import FlatButton from 'material-ui/FlatButton';

@@ -5,7 +5,7 @@ import RaisedButton from 'material-ui/RaisedButton';
 
 var validate = require("validate.js");
 
-var style = require('alpha-client-lib/style/button.css');
+var style = require('xbuilder-forms/style/button.css');
 
 const StdButton = React.createClass({
 	getInitialState(){

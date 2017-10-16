@@ -1,6 +1,6 @@
 const React = require('react');
 
-const AppState = require('alpha-client-lib/lib/appState');
+const AppState = require('xbuilder-core/lib/appState');
 
 var apiKey = AppState.getProp('config.maps_api_key');
 if(!serverSide && apiKey)
@@ -8,7 +8,7 @@ if(!serverSide && apiKey)
 	var mapsapi = require( 'google-maps-api' )(apiKey, ['places']);
 }
 
-var Geocode = require('../../lib/geocode');
+var Geocode = require('xbuilder-core/lib/geocode');
 
 const param = require("jquery-param");
 const parseUrl = require('parse-url');

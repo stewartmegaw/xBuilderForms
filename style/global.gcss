@@ -4,24 +4,6 @@
 	display: table;
 }
 
-.video-js .vjs-control.vjs-record-button {
-	width: 6em;	
-}
-
-.video-js .vjs-record-button .vjs-control-text {
-    clip: auto;
-    width: auto;
-    height: auto;
-    left: 0;
-    right: 0;
-    top: -13px;
-    font-size: 12px;
-    text-transform: uppercase;
-    font-family: sans-serif;
-    overflow: visible;
-    text-shadow: 0px 0px 4px rgba(0, 0, 0, 1);
-}
-
 .tipArea {
     font-weight: 200;
     background: #EFEFEF;
