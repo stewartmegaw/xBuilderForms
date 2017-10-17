@@ -1,7 +1,7 @@
 const React = require('react');
 
-const VideoRecorder = require('alpha-client-lib/partials/video/videoRecorder');
-const VideoPlayer = require('alpha-client-lib/partials/video/videoPlayer');
+const VideoRecorder = require('xbuilder-templates/video/videoRecorder');
+const VideoPlayer = require('xbuilder-templates/video/videoPlayer');
 const FileUtils = require('xbuilder-core/lib/fileUtils');
 
 const Loading = require('xbuilder-core/helpers/loading');
