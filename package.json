@@ -18,8 +18,5 @@
   "homepage": "https://github.com/stewartmegaw/xBuilderForms#readme",
   "devDependencies": {
   },
-  "dependencies": {
-    "xbuilder-core": "git+https://90c8cbd971fd98f825777e93b9c54a2c78213c2b:x-oauth-basic@github.com/stewartmegaw/xBuilderCore.git",
-    "xbuilder-templates": "git+https://90c8cbd971fd98f825777e93b9c54a2c78213c2b:x-oauth-basic@github.com/stewartmegaw/xBuilderTemplates.git"
-  }
+  "dependencies": {}
 }
