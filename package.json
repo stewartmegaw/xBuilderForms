@@ -16,7 +16,6 @@
     "url": "https://github.com/stewartmegaw/xBuilderForms/issues"
   },
   "homepage": "https://github.com/stewartmegaw/xBuilderForms#readme",
-  "devDependencies": {
-  },
+  "devDependencies": {},
   "dependencies": {}
 }
