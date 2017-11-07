@@ -1,5 +1,8 @@
 const React = require('react');
 
+
+var Component = require('xbuilder-forms/wrappers/component');
+
 const AppState = require('xbuilder-core/lib/appState');
 var validate = require("validate.js");
 import TextField from 'material-ui/TextField';
@@ -14,7 +17,7 @@ if(!serverSide && apiKey)
 
 import {Card, CardText} from 'material-ui/Card';
 
-const StdLocation = React.createClass({
+const StdLocation = Component(React.createClass({
     getInitialState() {
         var p = this.props;
         var _s = p.state;
@@ -131,7 +134,7 @@ const StdLocation = React.createClass({
             <div style={{margin:'26px 0'}} id={p.id}>
                 <Card>
                     <CardText>
-                        <p style={{marginBottom:10}}>{p.label}</p>
+                        <p style={{marginBottom:10}}>{p.field.label}</p>
                         <div ref="map" style={{'minHeight':'300px','marginBottom':'0'}}></div>
                         <StdPlaceSuggest
                             name={p.name}
@@ -182,6 +185,6 @@ const StdLocation = React.createClass({
             </div>
         )
     }
-});
+}));
 
 module.exports = StdLocation;

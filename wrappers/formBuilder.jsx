@@ -3,7 +3,7 @@
 
 const React = require('react');
 
-var StdForm = require('xbuilder-forms/components/stdForm');
+var _Form = require('xbuilder-forms/components/form');
 
 require('xbuilder-forms/style/global.gcss');
 
@@ -337,6 +337,300 @@ const FormBuilder = React.createClass({
 	submit(success_cb) {
 		this.refs.form.manualSubmit(success_cb);
 	},
+	getAllFields(){
+		var fields = [];
+		for(var i = 0; i < this.state.fields.length; i++)
+			fields.push(this.getField(this.state.fields[i]));
+
+		return fields;
+	},
+	getFieldByName(name) {
+		for(var i = 0; i < this.state.fields.length; i++)
+			if(this.state.fields[i].name == name)
+				return this.getField(this.state.fields[i]);
+	},
+	getField(field){
+		var style = this.props.fieldStyles && this.props.fieldStyles[field.name] ? this.props.fieldStyles[field.name]  : {};
+		var className = this.props.fieldClassName && this.props.fieldClassName[field.name] ? this.props.fieldClassName[field.name]  : null;
+
+		var component = this.getComponent(field, style, className);
+		if(this.props.fieldWrappers[field.name])
+			return this.props.fieldWrappers[field.name](component);
+		else
+			return component;
+	},
+	getComponent(field, style, className){
+		let _this = this;
+		let s = this.state;
+		let p = this.props;
+
+		var component;
+		var options = Object.assign({},field.options);
+
+		switch(field.type)
+		{
+			case 'text':
+				if(s.components.stdTextField)
+				{
+					component = (
+						<s.components.stdTextField
+							key={field.name}
+							formName={p.form.name}
+							field={field}
+							state={s}
+					        updated={(_f)=>_this.setState(_f)}
+							className={className}
+							style={style}
+							floatingLabelStyle={style.floatingLabelStyle}
+							inputStyle={style.inputStyle}
+							fullWidth={true}
+							below={style.below}
+						/>
+					);
+				}
+				break;
+			case 'password':
+				if(s.components.stdTextField)
+				{
+					component = (
+						<s.components.stdTextField
+							key={field.name}
+							formName={p.form.name}
+							field={field}
+							state={s}
+					        updated={(_f)=>_this.setState(_f)}
+							floatingLabelStyle={style.floatingLabelStyle}
+							inputStyle={style.inputStyle}
+							fullWidth={true}
+							below={style.below}
+							className={style.class}
+							type="password"
+						/>
+					);
+				}
+				break;
+			case 'textarea':
+				if(s.components.stdTextField)
+				{
+					component = (
+						<s.components.stdTextField
+							key={field.name}
+							formName={p.form.name}
+							field={field}
+							state={s}
+					        updated={(_f)=>_this.setState(_f)}
+							floatingLabelStyle={style.floatingLabelStyle}
+							textareaStyle={style.textareaStyle}
+							fullWidth={true}
+							multiLine={true}
+							below={style.below}
+							className={style.class}
+							style={style.style}
+						/>
+					);
+				}
+				break;
+			case 'date':
+				if(s.components.stdDatePicker)
+				{
+					component = (
+						<s.components.stdDatePicker
+							key={field.name}
+							formName={p.form.name}
+							field={field}
+							state={s}
+					        updated={(_f)=>_this.setState(_f)}
+							floatingLabelText={options && options.floatingLabelText ? options.floatingLabelText : field.label}
+					        style={style.style || {}}
+					        updateNeighbours={options ? options.updateNeighbours : null}
+					        onFocusSetDate={options ? options.onFocusSetDate : null}
+						/>
+					);
+				}
+				break;
+			case 'select':
+			case 'multiSelect':
+				if(s.components.stdSelect)
+				{
+					component = (
+						<s.components.stdSelect
+							key={field.name}
+							formName={p.form.name}
+							field={field}
+							state={s}
+					        updated={(_f)=>_this.setState(_f)}
+							autoWidth={style.autoWidth === 1 ? true : false}
+							fullWidth={style.fullWidth === 0 ? false : true}
+					        style={style.style || {}}
+					        multiple={field.type == "multiSelect"}
+					        valueToString={options && options.valueCast == 'string'}
+						/>
+					);
+				}
+				break;
+			case 'radio':
+				if(s.components.stdRadio)
+				{
+					component = (
+						<s.components.stdRadio
+							key={field.name}
+							formName={p.form.name}
+							field={field}
+							state={s}
+							updated={(_f)=>_this.setState(_f)}
+							label={field.label}
+							autoWidth={style.autoWidth === 1 ? true : false}
+							fullWidth={style.fullWidth === 1 ? true : false}
+							style={style.style || {}}
+							valueToString={options && options.valueCast == 'string'}
+							/>
+					);
+				}
+				break;
+			case 'placeSuggest':
+				if(s.components.stdPlaceSuggest)
+				{
+					component = (
+						<s.components.stdPlaceSuggest
+							key={field.name}
+							formName={p.form.name}
+							field={field}
+			                state={s}
+					        updated={(_f)=>_this.setState(_f)}
+			                hintText={options.hintText ? options.hintText : null}
+			                nullOnChange={true}
+			                style={style.style || {}}
+			                fullWidth={style === 1 ? true : false}
+			                updateLocationQuery={options.updateLocationQuery || false}
+					        placeTypes={['(cities)']}
+							geocode={options.useUserLocation ? AppState.getProp('user.location',false) : false }
+			            />
+					);
+				}
+				break;
+			case 'videoCapture':
+				if(s.components.stdVideoCapture)
+				{
+					component = (
+						<s.components.stdVideoCapture
+							key={field.name}
+							formName={p.form.name}
+							field={field}
+							state={s}
+							updated={(_f, cb)=>_this.setState(_f,()=>{if(cb)cb();})}
+							style={style.style || {}}
+							afterLabel={options.afterLabel}
+							minDuration={options.minDuration}
+							maxDuration={options.maxDuration}
+							fieldId={field.id}
+							editIcon={options.editIcon}
+							onSuccess={options.submitAfterUpload ? ()=>_this.refs.form.manualSubmit() : null}
+			            />
+					);
+				}
+				break;
+			case 'tagSuggest':
+				if(s.components.stdTagSuggest)
+				{
+					component = (
+						<s.components.stdTagSuggest
+							key={field.name}
+							formName={p.form.name}
+							field={field}
+							state={s}
+							updated={(_f)=>_this.setState(_f)}
+							hintTextStyle={options.hintTextStyle ? options.hintTextStyle : null}
+							headerText={options.headerText ? options.headerText : null}
+							unique={true}
+							inputAsTag={true}
+							viewMode={options.viewMode && !p.edit}
+			            />
+					);
+				}
+				break;
+			case 'codeMirror':
+					if(s.components.stdCodeMirror)
+					{
+						component = (
+							<s.components.stdCodeMirror
+								key={field.name}
+								formName={p.form.name}
+								field={field}
+								state={s}
+								updated={(_f)=>_this.setState(_f)}
+				            />
+						);
+					}
+					break;
+			case 'location':
+				if(s.components.stdLocation)
+				{
+					component = (
+						<s.components.stdLocation
+							key={field.name}
+							formName={p.form.name}
+							field={field}
+							state={s}
+							updated={(_f)=>_this.setState(_f)}
+							style={style}
+							latName={options.latName}
+							lngName={options.lngName}
+			    		/>
+					);
+				}
+				break;
+			case 'file':
+				if(s.components.stdFile)
+				{
+					component = (
+						<s.components.stdFile
+							key={field.name}
+							formName={p.form.name}
+							field={field}
+							state={s}
+							updated={(_f)=>_this.setState(_f)}
+							style={style}
+							/>
+					);
+				}
+				break;
+			case 'hidden':
+			 	component = (
+			 		<input
+			 			key={field.name}
+			 			type="hidden"
+			 			name={field.name}
+			 			value={_this.clones[field.name] ? s.data[_this.clones[field.name]] : s.data[field.name]}
+		 			/>
+				);
+				break;
+			case 'submit':
+			case 'button':
+				if(s.components.stdButton)
+				{
+					component = (
+						<s.components.stdButton
+							key={field.name}
+							formName={p.form.name}
+							field={field}
+							state={s}
+							muiButton={style.buttonType ? style.buttonType : "FlatButton"}
+							label={options.successLabel ? (s.success ? options.successLabel : field.label) : field.label}
+						 	disabled={s.success?true:false}
+						 	style={style.style || {}}
+							headerText={options.headerText ? options.headerText : null}
+							hoverColor={style.hoverColor}
+							labelStyle={style.labelStyle}
+							backgroundColor={style.backgroundColor}
+							disableUntilValid={options.disableUntilValid || false}
+							topTextWhenValid={options.topTextWhenValid ? options.topTextWhenValid : null}
+						/>
+					);
+				}
+				break;
+		}
+		return component;
+	},
 	render() {
 		let _this = this;
 		let s = this.state;
@@ -346,7 +640,7 @@ const FormBuilder = React.createClass({
 		// rendering is reusable
 
 		return(
-			<StdForm
+			<_Form
 				ref="form"
 				id={"form_"+p.form.name}
 				formName={p.form.name}
@@ -367,344 +661,7 @@ const FormBuilder = React.createClass({
 				{p.topChildren || null}
 				{p.msgStyle!='popup' && s.global_error_msg ? <div style={{color:"red"}}>{s.global_error_msg}</div> : null}
 				{p.msgStyle!='popup' && s.success_msg ? <div style={p.successMsgStyle || {}}>{s.success_msg}</div> : null}
-				{s.fields.map(function(field) {
-					var component;
-					var options = Object.assign({},field.options);
-					var style = Object.assign({},field.style);
-
-					// Check for linked fields
-					var linkedFields = [];
-					s.fields.map(function(_field) {
-						if(_field.options && _field.options.linkedTo == field.name)
-							linkedFields.push(_field);
-					});
-
-					switch(field.type)
-					{
-						case 'text':
-							if(s.components.stdTextField)
-							{
-								component = (
-									<s.components.stdTextField
-										id={p.form.name + field.name}
-										key={field.name}
-										name={field.name}
-										floatingLabelText={field.label}
-										floatingLabelStyle={style.floatingLabelStyle}
-										inputStyle={style.inputStyle}
-										fullWidth={true}
-										below={style.below}
-										className={style.class}
-										state={s}
-								        updated={(_f)=>_this.setState(_f)}
-									/>
-								);
-							}
-							break;
-						case 'password':
-							if(s.components.stdTextField)
-							{
-								component = (
-									<s.components.stdTextField
-										id={p.form.name + field.name}
-										key={field.name}
-										name={field.name}
-										floatingLabelText={field.label}
-										floatingLabelStyle={style.floatingLabelStyle}
-										inputStyle={style.inputStyle}
-										fullWidth={true}
-										below={style.below}
-										className={style.class}
-										type="password"
-										state={s}
-								        updated={(_f)=>_this.setState(_f)}
-									/>
-								);
-							}
-							break;
-						case 'textarea':
-							if(s.components.stdTextField)
-							{
-								component = (
-									<s.components.stdTextField
-										id={p.form.name + field.name}
-										key={field.name}
-										name={field.name}
-										floatingLabelText={field.label}
-										floatingLabelStyle={style.floatingLabelStyle}
-										textareaStyle={style.textareaStyle}
-										fullWidth={true}
-										multiLine={true}
-										below={style.below}
-										className={style.class}
-										style={style.style}
-										state={s}
-								        updated={(_f)=>_this.setState(_f)}
-									/>
-								);
-							}
-							break;
-						case 'date':
-							if(s.components.stdDatePicker)
-							{
-								var minDate = null;
-								if(options.minDate)
-								{
-									if(options.minDate.value && options.minDate.value.indexOf('now') != -1)
-									{
-										minDate = new Date();
-										minDate.setHours(0,0,0,0); // No time
-										minDate = minDate.getTime();
-										if(options.minDate.add)
-											minDate += (options.minDate.add * 1000 * 60 * 60 * 24);
-										minDate = new Date(minDate);
-									}
-									else
-										minDate = new Date(options.minDate);	
-								}
-								// Set to today -2000 years (else its mui default is today-100 years)
-								else
-								{
-									minDate = new Date();
-									minDate.setHours(0,0,0,0); // No time
-									minDate = minDate.getTime() - (1000 * 60 * 60 * 24 * 365 * 300);
-									minDate = new Date(minDate);
-								}
-
-								component = (
-									<s.components.stdDatePicker
-										id={p.form.name + field.name}
-										key={field.name}
-										name={field.name}
-										floatingLabelText={options && options.floatingLabelText ? options.floatingLabelText : field.label}
-										state={s}
-								        updated={(_f)=>_this.setState(_f)}
-								        style={style.style || {}}
-								        updateNeighbours={options ? options.updateNeighbours : null}
-								        minDate={minDate}
-								        onFocusSetDate={options ? options.onFocusSetDate : null}
-									/>
-								);
-							}
-							break;
-						case 'select':
-						case 'multiSelect':
-							if(s.components.stdSelect)
-							{
-								component = (
-									<s.components.stdSelect
-										id={p.form.name + field.name}
-										key={field.name}
-										name={field.name}
-										floatingLabelText={field.label}
-										autoWidth={style.autoWidth === 1 ? true : false}
-										fullWidth={style.fullWidth === 0 ? false : true}
-										state={s}
-								        updated={(_f)=>_this.setState(_f)}
-								        items={field.valueOptions}
-								        style={style.style || {}}
-								        multiple={field.type == "multiSelect"}
-								        valueToString={options && options.valueCast == 'string'}
-								        linkedFields={linkedFields}
-									/>
-								);
-							}
-							break;
-						{/*case 'multiSelect':
-							if(s.components.stdMultiSelect)
-							{
-								component = (
-									<s.components.stdMultiSelect
-										id={p.name + field.name}
-										key={field.name}
-										name={field.name}
-										label={field.label}
-										autoWidth={style.autoWidth === 1 ? true : false}
-										fullWidth={style.fullWidth === 1 ? true : false}
-										state={s}
-								        updated={(_f)=>_this.setState(_f)}
-								        items={field.valueOptions}
-								        style={style.style || {}}
-								        valueToString={options && options.valueCast == 'string'}
-									/>
-								);
-							}
-							break;*/}
-						case 'radio':
-							if(s.components.stdRadio)
-							{
-								component = (
-									<s.components.stdRadio
-										id={p.form.name + field.name}
-										key={field.name}
-										name={field.name}
-										label={field.label}
-										autoWidth={style.autoWidth === 1 ? true : false}
-										fullWidth={style.fullWidth === 1 ? true : false}
-										state={s}
-										updated={(_f)=>_this.setState(_f)}
-										items={field.valueOptions}
-										style={style.style || {}}
-										valueToString={options && options.valueCast == 'string'}
-										/>
-								);
-							}
-							break;
-						case 'placeSuggest':
-							if(s.components.stdPlaceSuggest)
-							{
-								component = (
-									<s.components.stdPlaceSuggest
-					                    id={p.form.name + field.name}
-										key={field.name}
-										name={field.name}
-						                floatingLabelText={field.label}
-						                hintText={options.hintText ? options.hintText : null}
-						                nullOnChange={true}
-						                style={style.style || {}}
-						                fullWidth={style === 1 ? true : false}
-						                linkedFields={linkedFields}
-						                state={s}
-								        updated={(_f)=>_this.setState(_f)}
-								        updateLocationQuery={options.updateLocationQuery || false}
-								        placeTypes={['(cities)']}
-										geocode={options.useUserLocation ? AppState.getProp('user.location',false) : false }
-						            />
-								);
-							}
-							break;
-						case 'videoCapture':
-							if(s.components.stdVideoCapture)
-							{
-								component = (
-									<s.components.stdVideoCapture
-					                    id={p.form.name + field.name}
-										key={field.name}
-										name={field.name}
-										style={style.style || {}}
-										label={field.label}
-										afterLabel={options.afterLabel}
-										minDuration={options.minDuration}
-										maxDuration={options.maxDuration}
-										state={s}
-										updated={(_f, cb)=>_this.setState(_f,()=>{if(cb)cb();})}
-										fieldId={field.id}
-										editIcon={options.editIcon}
-										onSuccess={options.submitAfterUpload ? ()=>_this.refs.form.manualSubmit() : null}
-						            />
-								);
-							}
-							break;
-						case 'tagSuggest':
-							if(s.components.stdTagSuggest)
-							{
-								component = (
-									<s.components.stdTagSuggest
-					                    id={p.form.name + field.name}
-										key={field.name}
-										name={field.name}
-										hintText={field.label}
-										hintTextStyle={options.hintTextStyle ? options.hintTextStyle : null}
-										unique={true}
-										headerText={options.headerText ? options.headerText : null}
-										state={s}
-										updated={(_f)=>_this.setState(_f)}
-										inputAsTag={true}
-										viewMode={options.viewMode && !p.edit}
-						            />
-								);
-							}
-							break;
-						case 'codeMirror':
-								if(s.components.stdCodeMirror)
-								{
-									component = (
-										<s.components.stdCodeMirror
-											id={p.form.name + field.name}
-											key={field.name}
-											label={field.label}
-											name={field.name}
-											state={s}
-											updated={(_f)=>_this.setState(_f)}
-							            />
-									);
-								}
-								break;
-						case 'location':
-							if(s.components.stdLocation)
-							{
-								component = (
-									<s.components.stdLocation
-										id={p.form.name + field.name}
-										label={field.label}
-										name={field.name}
-										state={s}
-										key={field.name}
-										style={style}
-										updated={(_f)=>_this.setState(_f)}
-										latName={options.latName}
-										lngName={options.lngName}
-						    		/>
-								);
-							}
-							break;
-						case 'file':
-							if(s.components.stdFile)
-							{
-								component = (
-									<s.components.stdFile
-										id={p.form.name + field.name}
-										label={field.label}
-										name={field.name}
-										state={s}
-										key={field.name}
-										style={style}
-										linkedFields={linkedFields}
-										updated={(_f)=>_this.setState(_f)}
-										/>
-								);
-							}
-							break;
-						case 'hidden':
-						 	component = (
-						 		<input
-						 			key={field.name}
-						 			type="hidden"
-						 			name={field.name}
-						 			value={_this.clones[field.name] ? s.data[_this.clones[field.name]] : s.data[field.name]}
-					 			/>
-							);
-							break;
-						case 'submit':
-						case 'button':
-							if(s.components.stdButton)
-							{
-								component = (
-									<s.components.stdButton
-										id={p.form.name + field.name}
-										formId={"form_"+p.form.name}
-										key={field.name}
-									 	name={field.name}
-										muiButton={style.buttonType ? style.buttonType : "FlatButton"}
-										label={options.successLabel ? (s.success ? options.successLabel : field.label) : field.label}
-									 	type="submit"
-									 	disabled={s.success?true:false}
-									 	style={style.style || {}}
-										primary={true}
-										headerText={options.headerText ? options.headerText : null}
-										hoverColor={style.hoverColor}
-										labelStyle={style.labelStyle}
-										backgroundColor={style.backgroundColor}
-										disableUntilValid={options.disableUntilValid || false}
-										topTextWhenValid={options.topTextWhenValid ? options.topTextWhenValid : null}
-										state={s}
-									/>
-								);
-							}
-							break;
-					}
-					return component;
-				})}
+				{p.layout ? p.layout(this.getFieldByName) : this.getAllFields()}
 
 		        <input key="hidden_form" type="hidden" name="formNameUniqueIdentifier" value={p.form.name} />
 		        
@@ -713,7 +670,7 @@ const FormBuilder = React.createClass({
 		        {p.bottomChildren || null}
 		        
 		        {p.hiddenInputs ? Object.keys(p.hiddenInputs).map((prop,i)=>{return (<input type="hidden" key={i} name={prop} value={p.hiddenInputs[prop]} />)}):null}
-			</StdForm>
+			</_Form>
 
 		);
 	}

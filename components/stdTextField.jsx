@@ -10,17 +10,17 @@ const StdTextField = Component(React.createClass({
 		var p = this.props;
 
 		var mui_props = {
+			id:p.id,
 			name: p.name,
+			style:p.style || {},
+			className:p.className,
 			fullWidth: p.fullWidth,
-			floatingLabelText: p.floatingLabelText,
+			floatingLabelText: p.field.label,
 			floatingLabelStyle: p.floatingLabelStyle||{},
 			inputStyle:p.inputStyle || {},
 			textareaStyle:p.textareaStyle || {},
-			className:p.className,
 			type: p.type,
 			multiLine:p.multiLine,
-			id:p.id,
-			style:p.style || {}
 		};
 
 		return (

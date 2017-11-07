@@ -20,6 +20,7 @@ const StdRadio = Component(React.createClass({
 	render: function() {
 		var p = this.props;
 		var s = p.state;
+		var _s = this.state;
 
 		var mui_props = {
 			name: p.name,
@@ -38,8 +39,8 @@ const StdRadio = Component(React.createClass({
 					onChange={(event, value)=>this.onChange(value)}
                     labelPosition="right"
 				>
-					{Object.keys(p.items.values).map(function(v,i) {
-						return <RadioButton value={p.items.values[i]} label={p.items.text[i]} key={i} style={{marginBottom:5}}/>
+					{Object.keys(_s.options.valueOptions.values).map(function(v,i) {
+						return <RadioButton value={_s.options.valueOptions.values[i]} label={_s.options.valueOptions.text[i]} key={i} style={{marginBottom:5}}/>
 					})}
 			    </RadioButtonGroup>
 			    {s.error_msgs[p.name] ? <div style={{color:'red',fontSize:'12px'}}>{s.error_msgs[p.name][0]}</div> : null}

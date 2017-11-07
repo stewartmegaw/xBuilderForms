@@ -19,8 +19,23 @@ const HOC_Component2 = function(WrappedComponent) {
 			super(props);
 		}
 		render() {
+			var p = this.props;
+
+			// Check for linked fields
+			var linkedFields = [];
+			p.state.fields.map(function(_field) {
+				if(_field.options && _field.options.linkedTo == p.field.name)
+					linkedFields.push(_field);
+			});
+
+			var commonProps = {
+				id: p.formName + p.field.name,
+				name: p.field.name,
+				linkedFields: linkedFields
+			};
+
 			return (
-				<WrappedComponent {...this.props} />
+				<WrappedComponent {...p} {...commonProps}/>
 			);
 		}
 	};
@@ -38,7 +53,10 @@ Use this to:
 const HOC_Component = function(cp) {
 	return HOC_Component2(class extends cp {
 		getInitialState(){
-            return super.getInitialState ? super.getInitialState() : {};
+            var ss = super.getInitialState ? super.getInitialState() : {};
+            return Object.assign(ss, {
+            	options: this.props.field.options
+            });
       	}
 
       	// Generic field validation onChange

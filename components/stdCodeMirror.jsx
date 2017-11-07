@@ -2,6 +2,8 @@ import React from 'react';
 import RaisedButton from 'material-ui/RaisedButton';
 import {Card, CardActions, CardTitle} from 'material-ui/Card';
 
+var Component = require('xbuilder-forms/wrappers/component');
+
 var CodeMirror = require('react-codemirror');
 var beautify = require('js-beautify').js_beautify;
 
@@ -13,7 +15,7 @@ require('codemirror/addon/display/fullscreen');
 
 require('xbuilder-forms/style/codeMirror.gcss');
 
-var StdCodeMirror = React.createClass({
+var StdCodeMirror = Component(React.createClass({
   onFocusChange: function(focused) {
     if(!focused)
     {
@@ -65,7 +67,7 @@ var StdCodeMirror = React.createClass({
     return (
       <div style={{'marginTop':'10px','marginBottom':'10px'}} id={p.id}>
         <p style={{'fontSize':'14px','color':'rgba(0,0,0,0.54)'}}>
-          {p.label + ' (F11 for fullscreen)'}
+          {p.field.label + ' (F11 for fullscreen)'}
         </p>
         <CodeMirror
           ref={p.name}
@@ -84,6 +86,6 @@ var StdCodeMirror = React.createClass({
     );
   }
 
-});
+}));
 
 module.exports = StdCodeMirror;

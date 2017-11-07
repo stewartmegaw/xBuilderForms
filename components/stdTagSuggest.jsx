@@ -1,5 +1,8 @@
 const React = require('react');
 
+
+var Component = require('xbuilder-forms/wrappers/component');
+
 import 'whatwg-fetch';
 
 import Chip from 'material-ui/Chip';
@@ -13,7 +16,7 @@ const tagsStyle = require('xbuilder-forms/style/tags.css');
 
 const Loading = require('xbuilder-core/helpers/loading');
 
-const StdTagSuggest = React.createClass({
+const StdTagSuggest = Component(React.createClass({
 	getInitialState:function() {
 		return {
 			displayTags:this.props.displayTags|| [],
@@ -241,7 +244,7 @@ const StdTagSuggest = React.createClass({
 								id={p.id}
 								ref="autocomplete"
 								style={p.style || {}}
-								hintText={<span style={p.hintTextStyle || {}}>{p.hintText}</span>}
+								hintText={<span style={p.hintTextStyle || {}}>{p.field.label}</span>}
 								dataSource={s.requestId ?
 									s.tagSuggestions.concat([{text:'',value:<MenuItem style={{height:20,marginTop:-25,overflow:'hidden'}} disabled={true}><Loading size={0.3}/></MenuItem>}]) 
 									: s.tagSuggestions
@@ -290,6 +293,6 @@ const StdTagSuggest = React.createClass({
 	        </span>
 		);
 	}
-});	
+}));	
 
 module.exports = StdTagSuggest;

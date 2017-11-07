@@ -1,10 +1,12 @@
 const React = require('react');
 
+var Component = require('xbuilder-forms/wrappers/component');
+
 var validate = require("validate.js");
 
 var style = require('alpha-client-lib/style/file.css');
 
-const StdFile = React.createClass({
+const StdFile = Component(React.createClass({
 	getInitialState:function() {
 		var p = this.props;
 		var previousFilenameField = null;
@@ -48,7 +50,7 @@ const StdFile = React.createClass({
 		return (
 			<div style={Object.assign({margin:'26px 0'},p.style || {})} id={p.id}>
                 <p className={style.label}>
-            		{p.label}
+            		{p.field.label}
 
             		{_s.removeFileFlagField && _s.previousFilename ?
         				<span className={style.links} style={{color:'rgba(255,0,0,0.5)'}}>
@@ -98,6 +100,6 @@ const StdFile = React.createClass({
 	        </div>
         )
     }
-});
+}));
 
 module.exports = StdFile;

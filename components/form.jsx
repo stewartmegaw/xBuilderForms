@@ -8,7 +8,7 @@ import intersect from 'boundless-utils-object-intersection';
 
 var style = require('xbuilder-forms/style/form.css');
 
-const StdForm = React.createClass({
+const _Form = React.createClass({
 	getInitialState(){
 		return {pointerEvents:'normal'};
 	},
@@ -228,4 +228,4 @@ const StdForm = React.createClass({
 	);}
 });
 
-module.exports = StdForm;
+module.exports = _Form;

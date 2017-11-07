@@ -20,6 +20,31 @@ const StdDatePicker = Component(React.createClass({
 	render: function() {
 		var s = this.props.state;
 		var p = this.props;
+		var _s = this.state;
+
+		var minDate = null;
+		if(_s.options.minDate)
+		{
+			if(_s.options.minDate.value && _s.options.minDate.value.indexOf('now') != -1)
+			{
+				minDate = new Date();
+				minDate.setHours(0,0,0,0); // No time
+				minDate = minDate.getTime();
+				if(_s.options.minDate.add)
+					minDate += (_s.options.minDate.add * 1000 * 60 * 60 * 24);
+				minDate = new Date(minDate);
+			}
+			else
+				minDate = new Date(_s.options.minDate);	
+		}
+		// Set to today -2000 years (else its mui default is today-100 years)
+		else
+		{
+			minDate = new Date();
+			minDate.setHours(0,0,0,0); // No time
+			minDate = minDate.getTime() - (1000 * 60 * 60 * 24 * 365 * 300);
+			minDate = new Date(minDate);
+		}
 
 		var mui_props = {
 			name: "dummy"+p.name,
@@ -27,7 +52,7 @@ const StdDatePicker = Component(React.createClass({
 			mode:p.mode || 'landscape',
 			formatDate:p.formatDate || this.commonDateFormat,
 			style:{display:'inline-block'},
-			minDate:p.minDate,
+			minDate:minDate,
 			floatingLabelText:p.floatingLabelText || "Date"
 		};
 

@@ -1,5 +1,7 @@
 const React = require('react');
 
+var Component = require('xbuilder-forms/wrappers/component');
+
 const AppState = require('xbuilder-core/lib/appState');
 
 var apiKey = AppState.getProp('config.maps_api_key');
@@ -18,7 +20,7 @@ var validate = require("validate.js");
 
 const styles = require('xbuilder-forms/style/placeSuggest.css');
 
-const StdPlaceSuggest = React.createClass({
+const StdPlaceSuggest = Component(React.createClass({
 	getInitialState:function() {
 		var p = this.props;
 
@@ -196,7 +198,7 @@ const StdPlaceSuggest = React.createClass({
 		var mui_props = {
 			name: p.name,
 			id:p.id,
-			floatingLabelText:p.floatingLabelText,
+			floatingLabelText:p.field.label,
 			hintText:p.hintText,
 			style:p.style || {},
 			fullWidth: p.fullWidth || false,
@@ -240,6 +242,6 @@ const StdPlaceSuggest = React.createClass({
 			</span>
 		);
 	}
-});
+}));
 
 module.exports = StdPlaceSuggest;

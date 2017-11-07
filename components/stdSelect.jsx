@@ -37,11 +37,12 @@ const StdSelect = Component(React.createClass({
 	render: function() {
 		var p = this.props;
 		var s = p.state;
+		var _s = this.state;
 
 		var mui_props = {
 			name: p.name,
 			fullWidth: p.fullWidth,
-			floatingLabelText: p.floatingLabelText,
+			floatingLabelText: p.field.label,
 			id:p.id,
 			autoWidth:p.autoWidth,
 			style:p.style,
@@ -58,20 +59,20 @@ const StdSelect = Component(React.createClass({
 					onChange={(event,index,value)=>this.onChange(value)}
 					errorText={s.error_msgs[p.name] ? s.error_msgs[p.name][0] : null}
 				>
-					{Object.keys(p.items.values).map(function(v,i) {
+					{Object.keys(_s.options.valueOptions.values).map(function(v,i) {
 						return <MenuItem
 							insetChildren={p.multiple ? true : false}
-					        checked={p.multiple ? _value.indexOf(p.items.values[i]) > -1 : false}
-							value={p.items.values[i]}
-							primaryText={p.items.text[i]}
+					        checked={p.multiple ? _value.indexOf(_s.options.valueOptions.values[i]) > -1 : false}
+							value={_s.options.valueOptions.values[i]}
+							primaryText={_s.options.valueOptions.text[i]}
 							key={i}/>
 					})}
 			    </SelectField>
 			    {p.multiple ?
 			    	<span>
-			    		{p.items.values.map((v, i)=>{
-			    			return _value.indexOf(p.items.values[i]) == -1 ? null : (
-			    				<input type="hidden" name={p.name+"[]"} value={p.items.values[i]} key={i} />
+			    		{_s.options.valueOptions.values.map((v, i)=>{
+			    			return _value.indexOf(_s.options.valueOptions.values[i]) == -1 ? null : (
+			    				<input type="hidden" name={p.name+"[]"} value={_s.options.valueOptions.values[i]} key={i} />
 		    				)
 			    		})}
 			    	</span>

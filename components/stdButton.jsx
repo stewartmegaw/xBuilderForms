@@ -1,5 +1,8 @@
 const React = require('react');
 
+
+var Component = require('xbuilder-forms/wrappers/component');
+
 import FlatButton from 'material-ui/FlatButton';
 import RaisedButton from 'material-ui/RaisedButton';
 
@@ -7,7 +10,7 @@ var validate = require("validate.js");
 
 var style = require('xbuilder-forms/style/button.css');
 
-const StdButton = React.createClass({
+const StdButton = Component(React.createClass({
 	getInitialState(){
 		return {
 			disableBtnAsFormInvalid: this.props.disableUntilValid ? true : false,
@@ -24,7 +27,7 @@ const StdButton = React.createClass({
 		if(this.props.disableUntilValid || this.props.topTextWhenValid)
 		{
 
-			var form = document.querySelector('form#'+this.props.formId);
+			var form = document.querySelector('form#form_'+this.props.formName);
 
 			var errors = validate(validate.collectFormValues(form, {trim:true}), this.props.state.constraints);
 			
@@ -43,7 +46,7 @@ const StdButton = React.createClass({
 		var mui_props = {
 			id:p.id,
 			label: p.label,
-			type: p.type,
+			type: p.type || "submit",
 			disabled:_s.disableBtnAsFormInvalid || p.disabled,
 			hoverColor:p.hoverColor,
 			backgroundColor:p.backgroundColor,
@@ -61,7 +64,7 @@ const StdButton = React.createClass({
 			 	:
 			 		<RaisedButton
 			 			{...mui_props}
-			 			primary={p.primary || false}
+			 			primary={p.primary == false ? false : true}
 		 			/>
 			 	}
 			 	{p.disabled ? null :
@@ -70,6 +73,6 @@ const StdButton = React.createClass({
 			</div>
 				  
 	);}
-});
+}));
 
 module.exports = StdButton;

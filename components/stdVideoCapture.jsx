@@ -1,5 +1,8 @@
 const React = require('react');
 
+
+var Component = require('xbuilder-forms/wrappers/component');
+
 const VideoRecorder = require('xbuilder-templates/video/videoRecorder');
 const VideoPlayer = require('xbuilder-templates/video/videoPlayer');
 const FileUtils = require('xbuilder-core/lib/fileUtils');
@@ -31,7 +34,7 @@ if(mediaRecorderSupported)
 		mediaRecorderSupported = 0;
 }	
 
-const StdVideoCapture = React.createClass({
+const StdVideoCapture = Component(React.createClass({
 	getInitialState() {
 		return {
 			recorder:this.get_videos().file ? 0 : 1,
@@ -148,8 +151,8 @@ const StdVideoCapture = React.createClass({
 
 		return (
 			<div style={Object.assign({},p.style)} id={p.id}>
-				{p.label ?
-					<div style={{marginBottom:10}} dangerouslySetInnerHTML={{__html:p.label}}/>
+				{p.field.label ?
+					<div style={{marginBottom:10}} dangerouslySetInnerHTML={{__html:p.field.label}}/>
 				:null}
 				{p.afterLabel ?
 					<div style={{marginBottom:10}} dangerouslySetInnerHTML={{__html:p.afterLabel}}/>
@@ -309,6 +312,6 @@ const StdVideoCapture = React.createClass({
 			</div>
 		);
 	}
-});
+}));
 
 module.exports = StdVideoCapture;
