@@ -199,6 +199,13 @@ const FormBuilder = React.createClass({
 													_this.setState({components:components}, _this.componentsLoaded);
 				            });
 						break;
+					case 'dynamicJson':
+						if(!components.stdDynamicJson)
+							require.ensure([], (require) => {
+				                  components.stdDynamicJson = require('xbuilder-forms/components/stdDynamicJson');
+													_this.setState({components:components}, _this.componentsLoaded);
+				            });
+						break;
 					case 'button':
 					case 'submit':
 						if(!components.stdButton)
@@ -305,6 +312,13 @@ const FormBuilder = React.createClass({
 						return false;
 					}
 					break;
+				case 'dynamicJson':
+					if(!components.stdDynamicJson)
+					{
+						allLoaded = false;
+						return false;
+					}
+					break;
 				case 'button':
 				case 'submit':
 					if(!components.stdButton)
@@ -350,12 +364,13 @@ const FormBuilder = React.createClass({
 				return this.getField(this.state.fields[i]);
 	},
 	getField(field){
-		var style = this.props.fieldStyles && this.props.fieldStyles[field.name] ? this.props.fieldStyles[field.name]  : {};
-		var className = this.props.fieldClassName && this.props.fieldClassName[field.name] ? this.props.fieldClassName[field.name]  : null;
+		var p = this.props;
+		var style = p.fieldStyles && p.fieldStyles[field.name] ? p.fieldStyles[field.name]  : {};
+		var className = p.fieldClassName && p.fieldClassName[field.name] ? p.fieldClassName[field.name]  : null;
 
 		var component = this.getComponent(field, style, className);
-		if(this.props.fieldWrappers[field.name])
-			return this.props.fieldWrappers[field.name](component);
+		if(p.fieldWrappers && p.fieldWrappers[field.name])
+			return p.fieldWrappers[field.name](component);
 		else
 			return component;
 	},
@@ -553,6 +568,20 @@ const FormBuilder = React.createClass({
 					{
 						component = (
 							<s.components.stdCodeMirror
+								key={field.name}
+								formName={p.form.name}
+								field={field}
+								state={s}
+								updated={(_f)=>_this.setState(_f)}
+				            />
+						);
+					}
+					break;
+			case 'dynamicJson':
+					if(s.components.stdDynamicJson)
+					{
+						component = (
+							<s.components.stdDynamicJson
 								key={field.name}
 								formName={p.form.name}
 								field={field}

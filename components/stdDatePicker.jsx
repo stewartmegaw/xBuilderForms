@@ -1,3 +1,7 @@
+// Safest way to confirm valid date object
+// Object.prototype.toString.call(date) === '[object Date]'
+// https://stackoverflow.com/questions/643782/how-to-check-whether-an-object-is-a-date
+
 const React = require('react');
 
 import DatePicker from 'material-ui/DatePicker';
@@ -63,7 +67,7 @@ const StdDatePicker = Component(React.createClass({
 				  autoOk={true}
 		          ref={p.name}
 		          value={!s.data[p.name] ? null : new Date(this.getLocalTime(s.data[p.name]))}
-		          onChange={(e,date)=>this.onChange(date.getTime())}
+		          onChange={(e,date)=>this.onChange(Object.prototype.toString.call(date) === '[object Date]' ? date.getTime() : null)}
 		          errorText={s.error_msgs[p.name] ? s.error_msgs[p.name][0] : null}
 				  data-ignored={true}
 				  onFocus={p.onFocusSetDate ? () => {
@@ -85,7 +89,7 @@ const StdDatePicker = Component(React.createClass({
 						}}
 					/>
 				:null}
-		        <input type="hidden" name={p.name} value={this.getLocalTime(s.data[p.name])} />
+		        <input type="hidden" name={p.name} value={!s.data[p.name] ? "" : this.getLocalTime(s.data[p.name])} />
 	        </div>
 				  
 	);}
