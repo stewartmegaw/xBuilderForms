@@ -87,7 +87,7 @@ const _Form = React.createClass({
 			this.props.updated(Object.assign({},s,{success:1}));
 			
 
-			fetch(s.action, {
+			fetch(s.action + '?XDEBUG_SESSION_START=netbeans-xdebug', {
 				headers: {
 	                'X-Requested-With': 'XMLHttpRequest'
 				},

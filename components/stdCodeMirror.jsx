@@ -4,6 +4,8 @@ import {Card, CardActions, CardTitle} from 'material-ui/Card';
 
 var Component = require('xbuilder-forms/wrappers/component');
 
+var DynamicJson = require('xbuilder-forms/components/stdDynamicJson');
+
 var CodeMirror = require('react-codemirror');
 var beautify = require('js-beautify').js_beautify;
 
@@ -16,6 +18,9 @@ require('codemirror/addon/display/fullscreen');
 require('xbuilder-forms/style/codeMirror.gcss');
 
 var StdCodeMirror = Component(React.createClass({
+  getInitialState(){
+    return {};
+  },
   onFocusChange: function(focused) {
     if(!focused)
     {
@@ -48,7 +53,7 @@ var StdCodeMirror = Component(React.createClass({
     var s = this.props.state;
     var p = this.props;
 
-    var code = s.data[p.name] ? beautify(s.data[p.name],{indent_size: 2}) : "";
+    var code = (this.state.dynamicData ? beautify(this.state.dynamicData,{indent_size: 2}) : null) || (s.data[p.name] ? beautify(s.data[p.name],{indent_size: 2}) : "");
     //Codemirror Options
     var cmOptions = {
       lineNumbers: true,
@@ -65,7 +70,7 @@ var StdCodeMirror = Component(React.createClass({
     };
 
     return (
-      <div style={{'marginTop':'10px','marginBottom':'10px'}} id={p.id}>
+      <div style={{'marginTop':'10px','marginBottom':'10px',background:'#f7f7f7'}} id={p.id}>
         <p style={{'fontSize':'14px','color':'rgba(0,0,0,0.54)'}}>
           {p.field.label + ' (F11 for fullscreen)'}
         </p>
@@ -82,6 +87,7 @@ var StdCodeMirror = Component(React.createClass({
           style={{'display':'none'}}
           value={code}
           ></textarea>
+        <DynamicJson state={{fields:[]}} field={{name:""}} initialValue={code} updated={(data)=>this.setState({dynamicData:data})}/>
       </div>
     );
   }

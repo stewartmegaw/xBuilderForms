@@ -11,7 +11,7 @@ const StdSelect = Component(React.createClass({
 		var p = this.props;
 		var s = p.state;
 
-		var valuePresent = s.data[p.name] != null && s.data[p.name] != "undefined";
+		var valuePresent = s.data[p.name] !== null && s.data[p.name] != "undefined";
 
 		if(p.multiple)
 		{
@@ -77,11 +77,11 @@ const StdSelect = Component(React.createClass({
 			    		})}
 			    	</span>
 		    	:
-			    	<input type="hidden" name={p.name} value={s.data[p.name]} />
+			    	<input type="hidden" name={p.name} value={s.data[p.name] || ""} />
 			    }
 
 			    {!p.linkedFields ? null: p.linkedFields.map(function(_field) {
-					return <input key={_field.name} id={s ? s.name+_field.name : null} type="hidden" name={_field.name} value={s &&  s.data ? s.data[_field.name] : ''} />
+					return <input key={_field.name} id={s ? s.name+_field.name : null} type="hidden" name={_field.name} value={s &&  s.data ? (s.data[_field.name] || "") : ""} />
 				})}
 		    </span>				  
 	);}
