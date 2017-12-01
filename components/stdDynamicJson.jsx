@@ -153,7 +153,10 @@ const StdDynamicJson = Component(React.createClass({
 
         components.push(<span key={"span"+i} style={style}>{styleSpan}</span>);
 
-        return components;
+        // Break here instead of returning the componetns immediately so that
+        // any previously configured showMoreGroup can be added
+        break;
+        // return components;
       }
 
       switch(arg._type)
@@ -261,7 +264,7 @@ const StdDynamicJson = Component(React.createClass({
     }
 
     if(showMoreGroup.components.length)
-      components.splice(showMoreGroup.idx, 0, <span key="smg">
+      components.splice(showMoreGroup.idx=="start" ? 0 : (showMoreGroup.idx=="end" ? components.length : showMoreGroup.idx) , 0, <span key="smg">
           <button type="button" style={Object.assign({},this.elmStyles,{padding:0})} onClick={(event)=>{
             event.target.nextSibling.style.display = 'inline';
             event.target.style.display = 'none';
