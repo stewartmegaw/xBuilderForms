@@ -1,3 +1,11 @@
+.formDefaults input {
+    display:block;
+}
+
+.formDefaults select {
+    display:block;
+}
+
 .clearFix:after {
 	clear:both;
 	content: "";

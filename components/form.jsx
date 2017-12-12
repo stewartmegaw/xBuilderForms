@@ -16,35 +16,19 @@ const _Form = React.createClass({
 		var _this = this;
 		var s = this.props.state;
 
-		var form = document.querySelector('form#'+this.props.id);
-
-		var formValues = validate.collectFormValues(form, {trim:true});
-		
-		var constraints = Object.assign({},s.constraints);
-
-		// Before validating we must alter keys in the constraints
-		// object that belong to an input with an array value
-		for(var key in formValues)
-			if(key.indexOf('[]') > -1)
-			{
-				constraints[key] = constraints[key.replace('[]','')];
-				delete constraints[key.replace('[]','')];
-			}
-
-		// Validate!
-		var errors = validate(formValues, constraints);
+		var errors = this.props.validate();
 
 		// TODO Hack to validate tag count until https://github.com/ansman/validate.js/pull/184 implemented
-		if(this.props.id == 'form_tripCreateNew' || this.props.id == 'form_tripCreateDraft' || this.props.id == 'form_completeProfileStep1' || this.props.id == 'form_editHomeInterests')
-		{
-			var tags = document.getElementById(this.props.id).elements["tags[]"];
-			if(!tags || !tags.length || tags.length < 3)
-			{
-				if(!errors)
-					errors = {};
-				errors.tags = ['Select 3 tags'];
-			}
-		}
+		// if(this.props.id == 'form_tripCreateNew' || this.props.id == 'form_tripCreateDraft' || this.props.id == 'form_completeProfileStep1' || this.props.id == 'form_editHomeInterests')
+		// {
+		// 	var tags = document.getElementById(this.props.id).elements["tags[]"];
+		// 	if(!tags || !tags.length || tags.length < 3)
+		// 	{
+		// 		if(!errors)
+		// 			errors = {};
+		// 		errors.tags = ['Select 3 tags'];
+		// 	}
+		// }
 		// End of Hack
 
 		if(errors)
@@ -81,6 +65,7 @@ const _Form = React.createClass({
 			// Prevent form submission
 			event.preventDefault();
 
+			var form = document.querySelector('form#'+this.props.id);
 			var formData = new FormData(form);
 
 			// Temporarily setting the form.success = true is a quick way to disable any buttons

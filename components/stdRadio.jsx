@@ -36,7 +36,7 @@ const StdRadio = Component(React.createClass({
 				<RadioButtonGroup
 					{...mui_props}
 					defaultSelected={this.getValue()}
-					onChange={(event, value)=>this.onChange(value)}
+					onChange={(event, value)=>this.onChange(value, event)}
                     labelPosition="right"
 				>
 					{Object.keys(_s.options.valueOptions.values).map(function(v,i) {

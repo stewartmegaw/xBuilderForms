@@ -23,7 +23,8 @@ const HOC_Component2 = function(WrappedComponent) {
 
 			// Check for linked fields
 			var linkedFields = [];
-			p.state.fields.map(function(_field) {
+			// TODO Remove p.state after upgrade
+			(p.formState || p.state).fields.map(function(_field) {
 				if(_field.options && _field.options.linkedTo == p.field.name)
 					linkedFields.push(_field);
 			});
@@ -60,15 +61,18 @@ const HOC_Component = function(cp) {
       	}
 
       	// Generic field validation onChange
-      	onChange(value){
+      	onChange(value, event){
       		if(super.onChange)
       		{
-      			super.onChange(value);
+      			super.onChange(value, ()=>{
+      				if(p.events && p.events.onChangeFinished)
+			  			p.events.onChangeFinished(value);
+      			});
       			return;
       		}
 
 			var p = this.props;
-			var s = p.state;
+			var s = p.formState || p.state;
 
 		  	var _s = Object.assign({},s);
 		  	_s.data[p.name] = value;
@@ -85,74 +89,81 @@ const HOC_Component = function(cp) {
 		  		_s.error_msgs = errors || {};
 	  		}
 
-	  		if(p.updateNeighbours)
-	  			_s = this.updateNeighbours(value, _s);
+	  		// if(p.updateNeighbours)
+	  		// 	_s = this.updateNeighbours(value, _s);
 
-		  	p.updated(_s);
+		  	p.updated(_s,()=>{
+		  		if(p.events && p.events.onChangeFinished)
+		  			p.events.onChangeFinished(value);
+
+		  		// Global
+		  		if(p.onChangeFinished)
+		  			p.onChangeFinished(event);
+		  	});
 		}
 
 		// Legacy code from weestay. Probably still works
 		// and will be useful in future
-		updateNeighbours(value, _s){
-			if(super.updateNeighbours)
-      		{
-      			super.updateNeighbours(value);
-      			return;
-      		}
+		// updateNeighbours(value, _s){
+		// 	if(super.updateNeighbours)
+  //     		{
+  //     			super.updateNeighbours(value);
+  //     			return;
+  //     		}
 
-      		var p = this.props;
+  //     		var p = this.props;
 
-      		for(var i =0; i<p.updateNeighbours.length; i++)
-  			{
-  				var updateNeighbour = p.updateNeighbours[i];
+  //     		for(var i =0; i<p.updateNeighbours.length; i++)
+  // 			{
+  // 				var updateNeighbour = p.updateNeighbours[i];
 
-	  			if(updateNeighbour.value == "value")
-	  			{
-		  			if(updateNeighbour.condition)
-		  			{
-		  				var conditionMet = false;
-		  				if(updateNeighbour.condition == "greaterOrEqual" && value >= _s.data[updateNeighbour.field])
-		  				{	
-		  					conditionMet = true;
-					  		_s.data[updateNeighbour.field] = _s.data[p.name];
-					  		if(updateNeighbour.add)
-					  			_s.data[updateNeighbour.field] += (updateNeighbour.add * 1000 * 60 * 60 * 24) 
-		  				}
-		  				else if(updateNeighbour.condition == "lessOrEqual" && value <= _s.data[updateNeighbour.field])
-		  				{	
-		  					conditionMet = true;
-					  		_s.data[updateNeighbour.field] = _s.data[p.name];
-					  		if(updateNeighbour.subtract)
-					  			_s.data[updateNeighbour.field] -= (updateNeighbour.subtract * 1000 * 60 * 60 * 24) 
-		  				}
+	 //  			if(updateNeighbour.value == "value")
+	 //  			{
+		//   			if(updateNeighbour.condition)
+		//   			{
+		//   				var conditionMet = false;
+		//   				if(updateNeighbour.condition == "greaterOrEqual" && value >= _s.data[updateNeighbour.field])
+		//   				{	
+		//   					conditionMet = true;
+		// 			  		_s.data[updateNeighbour.field] = _s.data[p.name];
+		// 			  		if(updateNeighbour.add)
+		// 			  			_s.data[updateNeighbour.field] += (updateNeighbour.add * 1000 * 60 * 60 * 24) 
+		//   				}
+		//   				else if(updateNeighbour.condition == "lessOrEqual" && value <= _s.data[updateNeighbour.field])
+		//   				{	
+		//   					conditionMet = true;
+		// 			  		_s.data[updateNeighbour.field] = _s.data[p.name];
+		// 			  		if(updateNeighbour.subtract)
+		// 			  			_s.data[updateNeighbour.field] -= (updateNeighbour.subtract * 1000 * 60 * 60 * 24) 
+		//   				}
 
-		  				if(conditionMet)
-							if(updateNeighbour.msg)
-								emitter.emit(
-									'info_msg', 
-									updateNeighbour.msg
-							 	);	  					
-		  			}
-		  			else
-		  			{
-		  				if(updateNeighbour.type == 'onFocusSetDate')
-		  				{
-		  					for(var j =0; j <_s.fields.length; j++)
-		  					{
-			  					if(_s.fields[j].name == updateNeighbour.field)
-			  					{
-			  						_s.fields[j].options = Object.assign(_s.fields[j].options || {}, {'onFocusSetDate':_s.data[p.name]});
-			  						break;
-			  					}
-		  					}
-		  				}
-		  			}
-	  			}
-  			}
+		//   				if(conditionMet)
+		// 					if(updateNeighbour.msg)
+		// 						emitter.emit(
+		// 							'info_msg', 
+		// 							updateNeighbour.msg
+		// 					 	);	  					
+		//   			}
+		//   			else
+		//   			{
+		//   				if(updateNeighbour.type == 'onFocusSetDate')
+		//   				{
+		//   					for(var j =0; j <_s.fields.length; j++)
+		//   					{
+		// 	  					if(_s.fields[j].name == updateNeighbour.field)
+		// 	  					{
+		// 	  						_s.fields[j].options = Object.assign(_s.fields[j].options || {}, {'onFocusSetDate':_s.data[p.name]});
+		// 	  						break;
+		// 	  					}
+		//   					}
+		//   				}
+		//   			}
+	 //  			}
+  // 			}
 
-  			return _s;
+  // 			return _s;
 
-		}
+		// }
 
 		componentDidMount() {
 			if(super.componentDidMount)

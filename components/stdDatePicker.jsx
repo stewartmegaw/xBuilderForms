@@ -67,7 +67,7 @@ const StdDatePicker = Component(React.createClass({
 				  autoOk={true}
 		          ref={p.name}
 		          value={!s.data[p.name] ? null : new Date(this.getLocalTime(s.data[p.name]))}
-		          onChange={(e,date)=>this.onChange(Object.prototype.toString.call(date) === '[object Date]' ? date.getTime() : null)}
+		          onChange={(event,date)=>this.onChange(Object.prototype.toString.call(date) === '[object Date]' ? date.getTime() : null, event)}
 		          errorText={s.error_msgs[p.name] ? s.error_msgs[p.name][0] : null}
 				  data-ignored={true}
 				  onFocus={p.onFocusSetDate ? () => {

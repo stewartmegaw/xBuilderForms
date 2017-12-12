@@ -5,6 +5,8 @@ const React = require('react');
 
 var _Form = require('xbuilder-forms/components/form');
 
+var validate = require("validate.js");
+
 require('xbuilder-forms/style/global.gcss');
 
 const AppState = require('xbuilder-core/lib/appState');
@@ -108,6 +110,39 @@ const FormBuilder = React.createClass({
 	updateData(newData, cb){
 		this.setState({data:Object.assign(this.state.data,newData ||{})}, cb);
 	},
+	getFieldValue(field) {
+		return this.state.data[field];
+	},
+	validate(field){
+		// If field empty validate entire form
+		if(!field)
+		{
+			var form = document.querySelector('form#'+"form_"+this.props.form.name);
+
+			var formValues = validate.collectFormValues(form, {trim:true});
+			
+			var constraints = Object.assign({},this.state.constraints);
+
+			// Before validating we must alter keys in the constraints
+			// object that belong to an input with an array value
+			for(var key in formValues)
+				if(key.indexOf('[]') > -1)
+				{
+					constraints[key] = constraints[key.replace('[]','')];
+					delete constraints[key.replace('[]','')];
+				}
+		}
+		else {
+			// Only validate field
+  			var formValues = {};
+			formValues[field] = this.state.data[field];
+			var constraints = {};
+			constraints[field] = this.state.constraints[field];
+		}
+
+		var errors = validate(formValues, constraints);
+  		return errors;
+	},
 	componentDidMount(){
 		// Get the components async or we will have a lot of used code
 		if(!serverSide && !this.props.manual)
@@ -136,13 +171,6 @@ const FormBuilder = React.createClass({
 				                  _this.setState({components:components}, _this.componentsLoaded);
 				            });
 						break;
-					// case 'multiSelect':
-					// 	if(!components.stdMultiSelect)
-					// 		require.ensure([], (require) => {
-				 //                  components.stdMultiSelect = require('xbuilder-forms/components/stdMultiSelect');
-				 //                  _this.setState({components:components}, _this.componentsLoaded);
-				 //            });
-					// 	break;
 					case 'date':
 						if(!components.stdDatePicker)
 							require.ensure([], (require) => {
@@ -219,7 +247,6 @@ const FormBuilder = React.createClass({
 						components[field.type] = 1;
 						_this.setState({components:components}, _this.componentsLoaded);
 					break;
-
 				}
 			});
 		}
@@ -249,13 +276,6 @@ const FormBuilder = React.createClass({
 						return false;
 					}
 					break;
-				// case 'multiSelect':
-				// 	if(!components.stdMultiSelect)
-				// 	{
-				// 		allLoaded = false;
-				// 		return false;
-				// 	}
-				// 	break;
 				case 'radio':
 					if(!components.stdRadio)
 					{
@@ -367,14 +387,17 @@ const FormBuilder = React.createClass({
 		var p = this.props;
 		var style = p.fieldStyles && p.fieldStyles[field.name] ? p.fieldStyles[field.name]  : {};
 		var className = p.fieldClassName && p.fieldClassName[field.name] ? p.fieldClassName[field.name]  : null;
+		var events = p.fieldEvents && p.fieldEvents[field.name] ? p.fieldEvents[field.name] : null;
+		var manualProperties = p.fieldProperties && p.fieldProperties[field.name] ? p.fieldProperties[field.name] : null;
 
-		var component = this.getComponent(field, style, className);
+
+		var component = this.getComponent(field, style, className, events, manualProperties);
 		if(p.fieldWrappers && p.fieldWrappers[field.name])
 			return p.fieldWrappers[field.name](component);
 		else
 			return component;
 	},
-	getComponent(field, style, className){
+	getComponent(field, style, className, events, manualProperties){
 		let _this = this;
 		let s = this.state;
 		let p = this.props;
@@ -385,45 +408,7 @@ const FormBuilder = React.createClass({
 		switch(field.type)
 		{
 			case 'text':
-				if(s.components.stdTextField)
-				{
-					component = (
-						<s.components.stdTextField
-							key={field.name}
-							formName={p.form.name}
-							field={field}
-							state={s}
-					        updated={(_f)=>_this.setState(_f)}
-							className={className}
-							style={style}
-							floatingLabelStyle={style.floatingLabelStyle}
-							inputStyle={style.inputStyle}
-							fullWidth={true}
-							below={style.below}
-						/>
-					);
-				}
-				break;
 			case 'password':
-				if(s.components.stdTextField)
-				{
-					component = (
-						<s.components.stdTextField
-							key={field.name}
-							formName={p.form.name}
-							field={field}
-							state={s}
-					        updated={(_f)=>_this.setState(_f)}
-							floatingLabelStyle={style.floatingLabelStyle}
-							inputStyle={style.inputStyle}
-							fullWidth={true}
-							below={style.below}
-							className={style.class}
-							type="password"
-						/>
-					);
-				}
-				break;
 			case 'textarea':
 				if(s.components.stdTextField)
 				{
@@ -432,15 +417,14 @@ const FormBuilder = React.createClass({
 							key={field.name}
 							formName={p.form.name}
 							field={field}
-							state={s}
-					        updated={(_f)=>_this.setState(_f)}
-							floatingLabelStyle={style.floatingLabelStyle}
-							textareaStyle={style.textareaStyle}
-							fullWidth={true}
-							multiLine={true}
-							below={style.below}
-							className={style.class}
-							style={style.style}
+							formState={s}
+					        updated={(_f, cb)=>_this.setState(_f, cb)}
+							className={className}
+							style={style}
+							events={events}
+							onChangeFinished={p.onChangeFinished}
+							type={field.type}
+							{...manualProperties}
 						/>
 					);
 				}
@@ -459,6 +443,9 @@ const FormBuilder = React.createClass({
 					        style={style.style || {}}
 					        updateNeighbours={options ? options.updateNeighbours : null}
 					        onFocusSetDate={options ? options.onFocusSetDate : null}
+							events={events}
+							onChangeFinished={p.onChangeFinished}
+							{...manualProperties}
 						/>
 					);
 				}
@@ -472,13 +459,14 @@ const FormBuilder = React.createClass({
 							key={field.name}
 							formName={p.form.name}
 							field={field}
-							state={s}
-					        updated={(_f)=>_this.setState(_f)}
-							autoWidth={style.autoWidth === 1 ? true : false}
-							fullWidth={style.fullWidth === 0 ? false : true}
+							formState={s}
+					        updated={(_f, cb)=>_this.setState(_f, cb)}
+							className={className}
 					        style={style.style || {}}
-					        multiple={field.type == "multiSelect"}
-					        valueToString={options && options.valueCast == 'string'}
+							events={events}
+							onChangeFinished={p.onChangeFinished}
+					        type={field.type}
+							{...manualProperties}
 						/>
 					);
 				}
@@ -498,6 +486,9 @@ const FormBuilder = React.createClass({
 							fullWidth={style.fullWidth === 1 ? true : false}
 							style={style.style || {}}
 							valueToString={options && options.valueCast == 'string'}
+							events={events}
+							onChangeFinished={p.onChangeFinished}
+							{...manualProperties}
 							/>
 					);
 				}
@@ -519,6 +510,9 @@ const FormBuilder = React.createClass({
 			                updateLocationQuery={options.updateLocationQuery || false}
 					        placeTypes={['(cities)']}
 							geocode={options.useUserLocation ? AppState.getProp('user.location',false) : false }
+							events={events}
+							onChangeFinished={p.onChangeFinished}
+							{...manualProperties}
 			            />
 					);
 				}
@@ -540,6 +534,9 @@ const FormBuilder = React.createClass({
 							fieldId={field.id}
 							editIcon={options.editIcon}
 							onSuccess={options.submitAfterUpload ? ()=>_this.refs.form.manualSubmit() : null}
+							events={events}
+							onChangeFinished={p.onChangeFinished}
+							{...manualProperties}
 			            />
 					);
 				}
@@ -559,6 +556,9 @@ const FormBuilder = React.createClass({
 							unique={true}
 							inputAsTag={true}
 							viewMode={options.viewMode && !p.edit}
+							events={events}
+							onChangeFinished={p.onChangeFinished}
+							{...manualProperties}
 			            />
 					);
 				}
@@ -573,6 +573,9 @@ const FormBuilder = React.createClass({
 								field={field}
 								state={s}
 								updated={(_f)=>_this.setState(_f)}
+								events={events}
+								onChangeFinished={p.onChangeFinished}
+								{...manualProperties}
 				            />
 						);
 					}
@@ -587,6 +590,9 @@ const FormBuilder = React.createClass({
 								field={field}
 								state={s}
 								updated={(_f)=>_this.setState(_f)}
+								events={events}
+								onChangeFinished={p.onChangeFinished}
+								{...manualProperties}
 				            />
 						);
 					}
@@ -604,6 +610,9 @@ const FormBuilder = React.createClass({
 							style={style}
 							latName={options.latName}
 							lngName={options.lngName}
+							events={events}
+							onChangeFinished={p.onChangeFinished}
+							{...manualProperties}
 			    		/>
 					);
 				}
@@ -619,6 +628,9 @@ const FormBuilder = React.createClass({
 							state={s}
 							updated={(_f)=>_this.setState(_f)}
 							style={style}
+							events={events}
+							onChangeFinished={p.onChangeFinished}
+							{...manualProperties}
 							/>
 					);
 				}
@@ -645,14 +657,14 @@ const FormBuilder = React.createClass({
 							state={s}
 							muiButton={style.buttonType ? style.buttonType : "FlatButton"}
 							label={options.successLabel ? (s.success ? options.successLabel : field.label) : field.label}
-						 	disabled={s.success?true:false}
 						 	style={style.style || {}}
 							headerText={options.headerText ? options.headerText : null}
 							hoverColor={style.hoverColor}
 							labelStyle={style.labelStyle}
 							backgroundColor={style.backgroundColor}
-							disableUntilValid={options.disableUntilValid || false}
-							topTextWhenValid={options.topTextWhenValid ? options.topTextWhenValid : null}
+							events={events}
+							onChangeFinished={p.onChangeFinished}
+							{...manualProperties}
 						/>
 					);
 				}
@@ -682,12 +694,13 @@ const FormBuilder = React.createClass({
  						emitter.emit('info_msg', _f.success_msg || _f.global_error_msg);
  				}}
 				style={p.style || {}}
+				className={"formDefaults " + (p.className || "")}
 				msgStyle={p.msgStyle}
 				file={s.filePresent}
 				submitOnClick={p.submitOnClick}
 				disableClickOnSubmit={p.disableClickOnSubmit}
+				validate={this.validate}
 			>
-				{p.topChildren || null}
 				{p.msgStyle!='popup' && s.global_error_msg ? <div style={{color:"red"}}>{s.global_error_msg}</div> : null}
 				{p.msgStyle!='popup' && s.success_msg ? <div style={p.successMsgStyle || {}}>{s.success_msg}</div> : null}
 				{p.layout ? p.layout(this.getFieldByName) : this.getAllFields()}
@@ -695,8 +708,6 @@ const FormBuilder = React.createClass({
 		        <input key="hidden_form" type="hidden" name="formNameUniqueIdentifier" value={p.form.name} />
 		        
 		        {p.manual ? p.children : null}
-
-		        {p.bottomChildren || null}
 		        
 		        {p.hiddenInputs ? Object.keys(p.hiddenInputs).map((prop,i)=>{return (<input type="hidden" key={i} name={prop} value={p.hiddenInputs[prop]} />)}):null}
 			</_Form>

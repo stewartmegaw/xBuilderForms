@@ -1,17 +1,30 @@
 const React = require('react');
 
-import SelectField from 'material-ui/SelectField';
-import MenuItem from 'material-ui/MenuItem';
-
 var Component = require('xbuilder-forms/wrappers/component');
-var validate = require("validate.js");
 
 const StdSelect = Component(React.createClass({
+	getInitialState(){
+		return {
+			stdSelectMUI:null
+		}
+	},
+	componentWillMount() {
+		var _this = this;
+
+		if(this.props.muiProps)
+		{	
+			require.ensure([], (require) => {
+	              var component = require('xbuilder-forms/components/stdSelectMUI');
+	              _this.setState({stdSelectMUI:component});
+	        });
+		}
+	},
 	getValue: function(){
 		var p = this.props;
-		var s = p.state;
+		var fs = p.formState;
+		var s = this.state;
 
-		var valuePresent = s.data[p.name] !== null && s.data.hasOwnProperty(p.name) && s.data[p.name] != "undefined";
+		var valuePresent = fs.data[p.name] !== null && fs.data.hasOwnProperty(p.name) && fs.data[p.name] != "undefined";
 
 		if(p.multiple)
 		{
@@ -19,71 +32,70 @@ const StdSelect = Component(React.createClass({
 				return [];
 			else
 			{
-				if(p.valueToString)
+				if(s.options.valueCast == 'string')
 				{
 					var vals = [];
-					s.data[p.name].map((v)=>{
+					fs.data[p.name].map((v)=>{
 						vals.push(v.toString());
 					});
 					return vals;
 				}
 				else
-					return s.data[p.name];
+					return fs.data[p.name];
 			}
 		}
 		else
-			return valuePresent && p.valueToString ? s.data[p.name].toString() : s.data[p.name];
+			return valuePresent && s.options.valueCast == 'string' ? fs.data[p.name].toString() : fs.data[p.name];
 	},
 	render: function() {
 		var p = this.props;
-		var s = p.state;
-		var _s = this.state;
-
-		var mui_props = {
-			name: p.name,
-			fullWidth: p.fullWidth,
-			floatingLabelText: p.field.label,
-			id:p.id,
-			autoWidth:p.autoWidth,
-			style:p.style,
-			multiple: p.multiple ? true : false
-		};
+		var fs = p.formState;
+		var s = this.state;
 
 		var _value = this.getValue();
 
-		return (
-			<span>
-				<SelectField
-					{...mui_props}
-					value={_value}
-					onChange={(event,index,value)=>this.onChange(value)}
-					errorText={s.error_msgs[p.name] ? s.error_msgs[p.name][0] : null}
-				>
-					{Object.keys(_s.options.valueOptions.values).map(function(v,i) {
-						return <MenuItem
-							insetChildren={p.multiple ? true : false}
-					        checked={p.multiple ? _value.indexOf(_s.options.valueOptions.values[i]) > -1 : false}
-							value={_s.options.valueOptions.values[i]}
-							primaryText={_s.options.valueOptions.text[i]}
-							key={i}/>
-					})}
-			    </SelectField>
-			    {p.multiple ?
-			    	<span>
-			    		{_s.options.valueOptions.values.map((v, i)=>{
-			    			return _value.indexOf(_s.options.valueOptions.values[i]) == -1 ? null : (
-			    				<input type="hidden" name={p.name+"[]"} value={_s.options.valueOptions.values[i]} key={i} />
-		    				)
-			    		})}
-			    	</span>
-		    	:
-			    	<input type="hidden" name={p.name} value={_value} />
-			    }
+		var stdProps = {
+			id:p.id,
+			name: p.name,
+			style:p.style || {},
+			className:p.className,
+			value:_value,
+			multiple: p.type == "multiSelect" ? true : false
+		};
 
-			    {!p.linkedFields ? null: p.linkedFields.map(function(_field) {
-					return <input key={_field.name} id={s ? s.name+_field.name : null} type="hidden" name={_field.name} value={s &&  s.data ? (s.data[_field.name] || "") : ""} />
-				})}
-		    </span>				  
+
+		if(!p.muiProps)
+		{
+			stdProps.onChange = (e)=>{this.onChange(e.target.value.trim(), e)};
+			return (
+				<select {...stdProps}>
+					{Object.keys(s.options.valueOptions.values).map(function(v,i) {
+						return (
+							<option
+								checked={p.multiple ? _value.indexOf(s.options.valueOptions.values[i]) > -1 : false}
+								value={s.options.valueOptions.values[i]}
+								key={i}>
+								{s.options.valueOptions.text[i]}
+							</option>
+						)
+					})}
+				</select>
+			)
+		}
+
+		if(!s.stdSelectMUI)
+			return null;
+
+		return (
+			<s.stdSelectMUI
+				state={s}
+				formState={fs}
+				field={p.field}
+				onChange={(value,e)=>this.onChange(value,e)}
+				stdProps={stdProps}
+				muiProps={p.muiProps}
+				getValue={this.getValue}
+			/>
 	);}
 }));
 
