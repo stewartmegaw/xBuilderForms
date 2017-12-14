@@ -26,7 +26,7 @@ const StdPlaceSuggest = Component(React.createClass({
 
 		return {
 			predictions:[],
-			searchText: p.state && p.state.data ? (p.state.data[p.name] || "") : "",
+			searchText: p.formState && p.formState.data ? (p.formState.data[p.name] || "") : "",
 			types: p.placeTypes || []
 		};
 	},
@@ -132,9 +132,9 @@ const StdPlaceSuggest = Component(React.createClass({
 	},
 	placeUpdated(place, searchText){
 		var p = this.props;
-		var _s = Object.assign({}, p.state || {});
-		var _data = Object.assign({searchText:searchText||""}, _s.data || {}, place);
-		_s.data = _data;
+		var fs = Object.assign({}, p.formState || {});
+		var _data = Object.assign({searchText:searchText||""}, fs.data || {}, place);
+		fs.data = _data;
 
 		if(this.getErrorMsg() && p.linkedFields) 
   		{
@@ -144,10 +144,10 @@ const StdPlaceSuggest = Component(React.createClass({
 			for(var i = 0; i < p.linkedFields.length; i++) {
 				var _fieldname = p.linkedFields[i].name;
 				fieldVals[_fieldname] = place[_fieldname] + ""; // Forces lat lng to string
-				constraints[_fieldname] = _s.constraints[_fieldname];
+				constraints[_fieldname] = fs.constraints[_fieldname];
 			}
 			var errors = validate(fieldVals, constraints);
-	  		_s.error_msgs = errors || {};
+	  		fs.error_msgs = errors || {};
   		}
 
   		if(p.updateLocationQuery)
@@ -161,7 +161,7 @@ const StdPlaceSuggest = Component(React.createClass({
   		}
 
   		this.setSearchText(searchText);
-		this.props.updated(_s);
+		this.props.updated(fs);
 	},
 	focus:function(){
 		this.refs.autoComplete.focus();
@@ -169,11 +169,11 @@ const StdPlaceSuggest = Component(React.createClass({
 	getErrorMsg(){
 		var p = this.props;
 		var msg = "";
-		if(p.linkedFields && p.state && p.state.error_msgs)
+		if(p.linkedFields && p.formState && p.formState.error_msgs)
 		{
 			for(var i = 0; i < p.linkedFields.length; i++) {
 				var _field = p.linkedFields[i];
-				msg = p.state.error_msgs[_field.name] ? "Problem with " + p.name : "";
+				msg = p.formState.error_msgs[_field.name] ? "Problem with " + p.name : "";
 				if(msg != "")
 					break;
 			}
@@ -198,16 +198,16 @@ const StdPlaceSuggest = Component(React.createClass({
 		var mui_props = {
 			name: p.name,
 			id:p.id,
-			floatingLabelText:p.field.label,
-			hintText:p.hintText,
 			style:p.style || {},
-			fullWidth: p.fullWidth || false,
-			hintStyle: p.hintStyle || {},
-			listStyle: p.listStyle || {},
-			disableFocusRipple: p.disableFocusRipple || false,
-			menuStyle: p.menuStyle || {},
 			className: p.className,
-			textFieldStyle: p.textFieldStyle || {},
+			floatingLabelText: p.muiProps.floatingLabelText || p.field.label,
+			hintText:p.muiProps.hintText,
+			fullWidth: p.muiProps.fullWidth || false,
+			hintStyle: p.muiProps.hintStyle || {},
+			listStyle: p.muiProps.listStyle || {},
+			disableFocusRipple: p.muiProps.disableFocusRipple || false,
+			menuStyle: p.muiProps.menuStyle || {},
+			textFieldStyle: p.muiProps.textFieldStyle || {},
 		};
 
 
@@ -237,7 +237,7 @@ const StdPlaceSuggest = Component(React.createClass({
 					data-ignored={true}
 				/>
 				{!p.linkedFields ? null: p.linkedFields.map(function(_field) {
-					return <input key={_field.name} id={p.state ? p.state.name+_field.name : null} type="hidden" name={_field.name} value={p.state &&  p.state.data ? p.state.data[_field.name] : ''} />
+					return <input key={_field.name} id={p.formState ? p.formState.name+_field.name : null} type="hidden" name={_field.name} value={p.formState &&  p.formState.data ? p.formState.data[_field.name] : ''} />
 				})}
 			</span>
 		);

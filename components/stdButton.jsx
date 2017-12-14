@@ -1,51 +1,58 @@
 const React = require('react');
 
-
 var Component = require('xbuilder-forms/wrappers/component');
-
-import FlatButton from 'material-ui/FlatButton';
-import RaisedButton from 'material-ui/RaisedButton';
-
-var validate = require("validate.js");
-
-var style = require('xbuilder-forms/style/button.css');
 
 const StdButton = Component(React.createClass({
 	getInitialState(){
 		return {
-		};
+			stdButtonMUI:null
+		}
+	},
+	componentWillMount() {
+		var _this = this;
+
+		if(this.props.muiProps)
+		{	
+			require.ensure([], (require) => {
+	              var component = require('xbuilder-forms/components/stdButtonMUI');
+	              _this.setState({stdButtonMUI:component});
+	        });
+		}
 	},
 	render: function() {
-		var s = this.props.state;
 		var p = this.props;
-		var _s = this.state;
+		var s = this.state;
 
-		var mui_props = {
+		var stdProps = {
 			id:p.id,
-			label: p.label,
-			type: p.type || "submit",
-			disabled:p.disabled,
-			hoverColor:p.hoverColor,
-			backgroundColor:p.backgroundColor,
-			labelStyle:p.labelStyle,
-		};
+			name: p.name,
+	        type: p.type,
+			style:p.style || {},
+			className:p.className,
+	        ref:p.name,
+	        value:1,
+	        disabled:p.disabled || false,
+	        onClick:p.events.onClick 
+		}
+
+		if(!p.muiProps)
+		{
+			var extraProps = {};
+			extraProps.onClick = p.events.onClick;
+			return <button {...stdProps}>{p.field.label}</button>
+		}
+
+		if(!s.stdButtonMUI)
+			return null;
 
 		return (
-			<div style={p.style|| {}} className={style.container}>
-				{p.muiButton == 'FlatButton' ?
-					<FlatButton
-						{...mui_props}
-					/>
-			 	:
-			 		<RaisedButton
-			 			{...mui_props}
-			 			primary={p.primary == false ? false : true}
-		 			/>
-			 	}
-			 	{p.disabled ? null :
-				 	<input type="hidden" name={p.name} value="1"/>
-				}
-			</div>
+			<s.stdButtonMUI
+				field={p.field}
+				stdProps={stdProps}
+				muiProps={p.muiProps}
+				muiButtonType={p.muiButtonType}
+				events={p.events}
+			/>
 				  
 	);}
 }));

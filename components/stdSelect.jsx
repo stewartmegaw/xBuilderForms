@@ -26,7 +26,7 @@ const StdSelect = Component(React.createClass({
 
 		var valuePresent = fs.data[p.name] !== null && fs.data.hasOwnProperty(p.name) && fs.data[p.name] != "undefined";
 
-		if(p.multiple)
+		if(p.type == "multiSelect")
 		{
 			if(!valuePresent)
 				return [];
@@ -72,7 +72,7 @@ const StdSelect = Component(React.createClass({
 					{Object.keys(s.options.valueOptions.values).map(function(v,i) {
 						return (
 							<option
-								checked={p.multiple ? _value.indexOf(s.options.valueOptions.values[i]) > -1 : false}
+								checked={stdProps.multiple ? _value.indexOf(s.options.valueOptions.values[i]) > -1 : false}
 								value={s.options.valueOptions.values[i]}
 								key={i}>
 								{s.options.valueOptions.text[i]}

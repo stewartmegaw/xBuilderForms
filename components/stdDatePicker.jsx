@@ -67,17 +67,12 @@ const StdDatePicker = Component(React.createClass({
 				  autoOk={true}
 		          ref={p.name}
 		          value={!s.data[p.name] ? null : new Date(this.getLocalTime(s.data[p.name]))}
-		          onChange={(event,date)=>this.onChange(Object.prototype.toString.call(date) === '[object Date]' ? date.getTime() : null, event)}
+		          onChange={(event,date)=>{
+		          	this.onChange(Object.prototype.toString.call(date) === '[object Date]' ? date.getTime() : null, event)
+		          }}
 		          errorText={s.error_msgs[p.name] ? s.error_msgs[p.name][0] : null}
 				  data-ignored={true}
-				  onFocus={p.onFocusSetDate ? () => {
-				  	if(!s.data[p.name])
-				  	{
-					  	var _s = Object.assign({},s);
-		  				_s.data[p.name] = p.onFocusSetDate;
-		  				p.updated(_s);
-				  	}
-				  }: null}
+				  onFocus={p.events.onFocus}
 		        />
 		        {s.data[p.name] ?
 			       	 <CloseSVG

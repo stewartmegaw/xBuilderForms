@@ -4,7 +4,7 @@ const React = require('react');
 var Component = require('xbuilder-forms/wrappers/component');
 
 const AppState = require('xbuilder-core/lib/appState');
-var validate = require("validate.js");
+
 import TextField from 'material-ui/TextField';
 var StdPlaceSuggest = require('./stdPlaceSuggest');
 var Geocode = require('xbuilder-core/lib/geocode');
@@ -20,11 +20,15 @@ import {Card, CardText} from 'material-ui/Card';
 const StdLocation = Component(React.createClass({
     getInitialState() {
         var p = this.props;
-        var _s = p.state;
+        var fs = p.formState;
+
+
+        var latName = p.field.options.latName;
+        var lngName = p.field.options.lngName;
 
         return {
-            lat: _s.data && _s.data[p.latName || p.name+'Lat'] ? _s.data[p.latName || p.name+'Lat'] : '',
-            lng: _s.data && _s.data[p.lngName || p.name+'Lng'] ? _s.data[p.lngName || p.name+'Lng'] : '',
+            lat: fs.data && fs.data[latName || p.name+'Lat'] ? fs.data[latName || p.name+'Lat'] : '',
+            lng: fs.data && fs.data[lngName || p.name+'Lng'] ? fs.data[lngName || p.name+'Lng'] : '',
         }
     },
     marker:null,
@@ -42,7 +46,7 @@ const StdLocation = Component(React.createClass({
     },
     componentDidMount: function() {
         var p = this.props;
-        var _s = p.state;
+        var fs = p.formState;
         var _this = this;
 
         var plain_map_styles = [
@@ -94,13 +98,13 @@ const StdLocation = Component(React.createClass({
                 _this.setMarker(event.latLng);
 
                 _this.setState({lng: event.latLng.lng(), lat: event.latLng.lat()});
-                if (!_this.refs.placeSuggest.isUserEdited()) {
+                if (!_this.refs.placeSuggest.child.isUserEdited()) {
                     Geocode.go({
                         lat:event.latLng.lat(),
                         lng:event.latLng.lng(),
                         success(r){
                             if(r.results && r.results.length)
-                                _this.refs.placeSuggest.setSearchText(r.results[0].formatted_address);
+                                _this.refs.placeSuggest.child.setSearchText(r.results[0].formatted_address);
                             else
                                 emitter.emit('info_msg','Could not geocode a textual address');
                         }
@@ -111,9 +115,9 @@ const StdLocation = Component(React.createClass({
 
             // Initial marker
             var idleListener = google.maps.event.addListener(_this.googleMap, 'idle', function (event) {
-                if(_s.data && _s.data[p.latName || p.name+'Lat'] && _s.data[p.lngName || p.name+'Lng'])
+                if(fs.data && fs.data[p.field.options.latName || p.name+'Lat'] && fs.data[p.field.options.lngName || p.name+'Lng'])
                 {
-                    var latLng = {lat:Number(_s.data[p.latName || p.name+'Lat']), lng:Number(_s.data[p.lngName || p.name+'Lng'])};
+                    var latLng = {lat:Number(fs.data[p.field.options.latName || p.name+'Lat']), lng:Number(fs.data[p.field.options.lngName || p.name+'Lng'])};
                     _this.setState(latLng);
                     _this.setMarker(latLng);
                 }
@@ -122,14 +126,23 @@ const StdLocation = Component(React.createClass({
         });
 
         // Initial search text
-        if(_s.data && _s.data[p.name])
-            this.refs.placeSuggest.setSearchText(_s.data[p.name]);
+        if(fs.data && fs.data[p.name])
+            this.refs.placeSuggest.child.setSearchText(fs.data[p.name]);
 
 
     },
     render: function() {
         var p = this.props;
         var s = this.state;
+
+        var placeSuggestManualProperties = {
+            placeType: 'cities',
+            muiProps: {
+                floatingLabelText:"Search location",
+                fullWidth:true
+            }            
+        };
+
         return (
             <div style={{margin:'26px 0'}} id={p.id}>
                 <Card>
@@ -137,11 +150,11 @@ const StdLocation = Component(React.createClass({
                         <p style={{marginBottom:10}}>{p.field.label}</p>
                         <div ref="map" style={{'minHeight':'300px','marginBottom':'0'}}></div>
                         <StdPlaceSuggest
+                            field={p.field}
+                            formState={p.formState}
                             name={p.name}
-                            ref='placeSuggest'
-                            floatingLabelText={"Search location"}
-                            fullWidth={true}
-                            updated={(r)=>{
+                            ref="placeSuggest"
+                            updated={(r,cb)=>{
                                 if(r.data && r.data.lat && r.data.lng)
                                 {
                                     var latLng = {lat:r.data.lat, lng:r.data.lng};
@@ -149,12 +162,12 @@ const StdLocation = Component(React.createClass({
                                     this.setMarker(latLng);
                                 }
                             }}
-                            placeType={'cities'}
+                            {...placeSuggestManualProperties}
                         />
                         <div style={{float:'left',maxWidth:200,marginRight:20}}>
                             <TextField
                                 autoComplete={false}
-                                name={p.latName || p.name+'Lat'}
+                                name={p.field.options.latName || p.name+'Lat'}
                                 floatingLabelText={'Latitude'}
                                 fullWidth={true}
                                 value={s.lat}
@@ -168,7 +181,7 @@ const StdLocation = Component(React.createClass({
                         <div style={{float:'left',maxWidth:200}}>
                             <TextField
                                 autoComplete={false}
-                                name={p.lngName || p.name+'Lng'}
+                                name={p.field.options.lngName || p.name+'Lng'}
                                 floatingLabelText={'Longitude'}
                                 fullWidth={true}
                                 value={s.lng}

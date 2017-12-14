@@ -36,8 +36,10 @@ const StdTextField = Component(React.createClass({
 
 		if(!p.muiProps)
 		{
-			stdProps.onChange = (e)=>{this.onChange(e.target.value.trim(), e)};
-			return stdProps.type == "textarea" ?  <textarea {...stdProps}/> : <input {...stdProps}/>
+			var extraProps = {};
+			extraProps.onChange = (e)=>{this.onChange(e.target.value.trim(), e)};
+			extraProps.onBlur = p.events.onBlur;
+			return stdProps.type == "textarea" ?  <textarea {...stdProps} {...extraProps}/> : <input {...stdProps} {...extraProps}/>
 		}
 
 		if(!s.stdTextFieldMUI)
@@ -50,6 +52,7 @@ const StdTextField = Component(React.createClass({
 				onChange={(value,e)=>this.onChange(value,e)}
 				stdProps={stdProps}
 				muiProps={p.muiProps}
+				events={p.events}
 			/>
 	);}
 }));

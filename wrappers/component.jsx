@@ -18,6 +18,7 @@ const HOC_Component2 = function(WrappedComponent) {
 		constructor(props) {
 			super(props);
 		}
+
 		render() {
 			var p = this.props;
 
@@ -36,7 +37,7 @@ const HOC_Component2 = function(WrappedComponent) {
 			};
 
 			return (
-				<WrappedComponent {...p} {...commonProps}/>
+				<WrappedComponent {...p} {...commonProps} setChild={child => (this.child = child)} />
 			);
 		}
 	};
@@ -59,6 +60,7 @@ const HOC_Component = function(cp) {
             	options: this.props.field.options
             });
       	}
+
 
       	// Generic field validation onChange
       	onChange(value, event){
@@ -94,7 +96,7 @@ const HOC_Component = function(cp) {
 
 		  	p.updated(_s,()=>{
 		  		if(p.events && p.events.onChangeFinished)
-		  			p.events.onChangeFinished(value);
+		  			p.events.onChangeFinished(value, event);
 
 		  		// Global
 		  		if(p.onChangeFinished)
@@ -166,6 +168,10 @@ const HOC_Component = function(cp) {
 		// }
 
 		componentDidMount() {
+			// Setup the child component so methods
+			// in the child can be reached
+			this.props.setChild(this);
+
 			if(super.componentDidMount)
 				super.componentDidMount();
 		}

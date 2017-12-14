@@ -27,6 +27,8 @@ const FormBuilder = React.createClass({
 				requestType:''
 			}, this.props.form);
 
+		var parsedUrl = parseUrl(serverSide ? uri : window.location.href);	
+		
 		if(!this.props.manual)
 		{
 
@@ -36,7 +38,6 @@ const FormBuilder = React.createClass({
 			});
 
 			// Set default values
-			var parsedUrl = parseUrl(serverSide ? uri : window.location.href);	
 			var data = {};
 			var fields = s.fields;
 			var filePresent = false;
@@ -107,21 +108,36 @@ const FormBuilder = React.createClass({
 
 		return s;
 	},
+	updateAction(action, cb){
+		this.setState({action:action},cb);
+	},
 	updateData(newData, cb){
 		this.setState({data:Object.assign(this.state.data,newData ||{})}, cb);
 	},
 	getFieldValue(field) {
 		return this.state.data[field];
 	},
-	validate(field){
+	// isValid is a boolean wrapper for validate()
+	isValid(field, highlight, scroll) {
+		var errors = this.validate(field, highlight, scroll);
+		if(!errors)
+			return true;
+		else
+			return false;
+	},
+	// return error messages or null is valid
+	validate(field, highlight, scroll){
+		var s = this.state;
+		var p = this.props;
+
 		// If field empty validate entire form
 		if(!field)
 		{
-			var form = document.querySelector('form#'+"form_"+this.props.form.name);
+			var form = document.querySelector('form#'+"form_"+p.form.name);
 
 			var formValues = validate.collectFormValues(form, {trim:true});
 			
-			var constraints = Object.assign({},this.state.constraints);
+			var constraints = Object.assign({},s.constraints);
 
 			// Before validating we must alter keys in the constraints
 			// object that belong to an input with an array value
@@ -135,12 +151,40 @@ const FormBuilder = React.createClass({
 		else {
 			// Only validate field
   			var formValues = {};
-			formValues[field] = this.state.data[field];
+			formValues[field] = s.data[field];
 			var constraints = {};
-			constraints[field] = this.state.constraints[field];
+			constraints[field] = s.constraints[field];
 		}
 
 		var errors = validate(formValues, constraints);
+
+		if(errors)
+		{
+			if(highlight)
+				this.setState({error_msgs:errors});
+
+			if(scroll)
+			{
+	      		// Scroll to error field with with smallest position
+	      		var smallestIndex = null;
+	      		var errorFieldNames = Object.keys(errors);
+	  			for(var j =0;j<errorFieldNames.length;j++)
+		      		for(var i =0;i<s.fields.length;i++)
+		      			if(s.fields[i].name == errorFieldNames[j])
+		      			{
+							if(smallestIndex === null || s.fields[i].position < smallestIndex)
+								smallestIndex = i;
+							break;
+		      			}
+	  			if(smallestIndex !== null)
+	  			{
+	  				var elm = document.getElementById(p.form.name + s.fields[smallestIndex].name);
+	  				if(elm)
+		      			elm.scrollIntoView({behavior: "smooth"});
+	  			}
+			}
+		}
+
   		return errors;
 	},
 	componentDidMount(){
@@ -387,7 +431,7 @@ const FormBuilder = React.createClass({
 		var p = this.props;
 		var style = p.fieldStyles && p.fieldStyles[field.name] ? p.fieldStyles[field.name]  : {};
 		var className = p.fieldClassName && p.fieldClassName[field.name] ? p.fieldClassName[field.name]  : null;
-		var events = p.fieldEvents && p.fieldEvents[field.name] ? p.fieldEvents[field.name] : null;
+		var events = p.fieldEvents && p.fieldEvents[field.name] ? p.fieldEvents[field.name] : {};
 		var manualProperties = p.fieldProperties && p.fieldProperties[field.name] ? p.fieldProperties[field.name] : null;
 
 
@@ -438,7 +482,7 @@ const FormBuilder = React.createClass({
 							formName={p.form.name}
 							field={field}
 							state={s}
-					        updated={(_f)=>_this.setState(_f)}
+					        updated={(_f, cb)=>_this.setState(_f, cb)}
 							floatingLabelText={options && options.floatingLabelText ? options.floatingLabelText : field.label}
 					        style={style.style || {}}
 					        updateNeighbours={options ? options.updateNeighbours : null}
@@ -462,10 +506,30 @@ const FormBuilder = React.createClass({
 							formState={s}
 					        updated={(_f, cb)=>_this.setState(_f, cb)}
 							className={className}
-					        style={style.style || {}}
+					        style={style}
 							events={events}
 							onChangeFinished={p.onChangeFinished}
 					        type={field.type}
+							{...manualProperties}
+						/>
+					);
+				}
+				break;
+			case 'submit':
+			case 'button':
+				if(s.components.stdButton)
+				{
+					component = (
+						<s.components.stdButton
+							key={field.name}
+							formName={p.form.name}
+							field={field}
+							formState={s}
+						 	className={className}
+						 	style={style}
+							events={events}
+							onChangeFinished={p.onChangeFinished}
+							type={field.type}
 							{...manualProperties}
 						/>
 					);
@@ -480,7 +544,7 @@ const FormBuilder = React.createClass({
 							formName={p.form.name}
 							field={field}
 							state={s}
-							updated={(_f)=>_this.setState(_f)}
+					        updated={(_f, cb)=>_this.setState(_f, cb)}
 							label={field.label}
 							autoWidth={style.autoWidth === 1 ? true : false}
 							fullWidth={style.fullWidth === 1 ? true : false}
@@ -501,20 +565,20 @@ const FormBuilder = React.createClass({
 							key={field.name}
 							formName={p.form.name}
 							field={field}
-			                state={s}
-					        updated={(_f)=>_this.setState(_f)}
-			                hintText={options.hintText ? options.hintText : null}
-			                nullOnChange={true}
-			                style={style.style || {}}
-			                fullWidth={style === 1 ? true : false}
-			                updateLocationQuery={options.updateLocationQuery || false}
-					        placeTypes={['(cities)']}
-							geocode={options.useUserLocation ? AppState.getProp('user.location',false) : false }
+			                formState={s}
+					        updated={(_f, cb)=>_this.setState(_f,cb)}
+						 	className={className}
+			                style={style}
 							events={events}
 							onChangeFinished={p.onChangeFinished}
 							{...manualProperties}
 			            />
 					);
+					{/*geocode={options.useUserLocation ? AppState.getProp('user.location',false) : false }
+			        placeTypes={['(cities)']}
+	                updateLocationQuery={options.updateLocationQuery || false}
+					nullOnChange={true}
+	                fullWidth={style === 1 ? true : false}*/}
 				}
 				break;
 			case 'videoCapture':
@@ -550,7 +614,7 @@ const FormBuilder = React.createClass({
 							formName={p.form.name}
 							field={field}
 							state={s}
-							updated={(_f)=>_this.setState(_f)}
+					        updated={(_f, cb)=>_this.setState(_f, cb)}
 							hintTextStyle={options.hintTextStyle ? options.hintTextStyle : null}
 							headerText={options.headerText ? options.headerText : null}
 							unique={true}
@@ -572,7 +636,7 @@ const FormBuilder = React.createClass({
 								formName={p.form.name}
 								field={field}
 								state={s}
-								updated={(_f)=>_this.setState(_f)}
+						        updated={(_f, cb)=>_this.setState(_f, cb)}
 								events={events}
 								onChangeFinished={p.onChangeFinished}
 								{...manualProperties}
@@ -589,7 +653,7 @@ const FormBuilder = React.createClass({
 								formName={p.form.name}
 								field={field}
 								state={s}
-								updated={(_f)=>_this.setState(_f)}
+						        updated={(_f, cb)=>_this.setState(_f, cb)}
 								events={events}
 								onChangeFinished={p.onChangeFinished}
 								{...manualProperties}
@@ -605,11 +669,10 @@ const FormBuilder = React.createClass({
 							key={field.name}
 							formName={p.form.name}
 							field={field}
-							state={s}
-							updated={(_f)=>_this.setState(_f)}
+							formState={s}
+							updated={(_f,cb)=>_this.setState(_f,cb)}
+							className={className}
 							style={style}
-							latName={options.latName}
-							lngName={options.lngName}
 							events={events}
 							onChangeFinished={p.onChangeFinished}
 							{...manualProperties}
@@ -626,7 +689,7 @@ const FormBuilder = React.createClass({
 							formName={p.form.name}
 							field={field}
 							state={s}
-							updated={(_f)=>_this.setState(_f)}
+					        updated={(_f, cb)=>_this.setState(_f, cb)}
 							style={style}
 							events={events}
 							onChangeFinished={p.onChangeFinished}
@@ -644,30 +707,6 @@ const FormBuilder = React.createClass({
 			 			value={_this.clones[field.name] ? s.data[_this.clones[field.name]] : s.data[field.name]}
 		 			/>
 				);
-				break;
-			case 'submit':
-			case 'button':
-				if(s.components.stdButton)
-				{
-					component = (
-						<s.components.stdButton
-							key={field.name}
-							formName={p.form.name}
-							field={field}
-							state={s}
-							muiButton={style.buttonType ? style.buttonType : "FlatButton"}
-							label={options.successLabel ? (s.success ? options.successLabel : field.label) : field.label}
-						 	style={style.style || {}}
-							headerText={options.headerText ? options.headerText : null}
-							hoverColor={style.hoverColor}
-							labelStyle={style.labelStyle}
-							backgroundColor={style.backgroundColor}
-							events={events}
-							onChangeFinished={p.onChangeFinished}
-							{...manualProperties}
-						/>
-					);
-				}
 				break;
 		}
 		return component;
@@ -694,7 +733,7 @@ const FormBuilder = React.createClass({
  						emitter.emit('info_msg', _f.success_msg || _f.global_error_msg);
  				}}
 				style={p.style || {}}
-				className={"formDefaults " + (p.className || "")}
+				className={(p.manual ? "" : "formDefaults ") + (p.className || "")}
 				msgStyle={p.msgStyle}
 				file={s.filePresent}
 				submitOnClick={p.submitOnClick}

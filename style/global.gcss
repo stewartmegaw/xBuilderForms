@@ -6,6 +6,10 @@
     display:block;
 }
 
+.formDefaults button {
+    display:block;
+}
+
 .clearFix:after {
 	clear:both;
 	content: "";

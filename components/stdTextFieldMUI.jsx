@@ -21,6 +21,7 @@ const StdTextFieldMUI = React.createClass({
 				{...p.stdProps}
 			 	{...muiProps}
 		       	onChange={(e)=>p.onChange(this.refs[p.stdProps.name].getValue(), e)}
+		       	onBlur={p.events.onBlur}
 	          	errorText={fs.error_msgs[p.stdProps.name] ? fs.error_msgs[p.stdProps.name][0] : null}
 	        />
 

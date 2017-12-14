@@ -16,7 +16,7 @@ const _Form = React.createClass({
 		var _this = this;
 		var s = this.props.state;
 
-		var errors = this.props.validate();
+		var errors = this.props.validate(null, true, true);
 
 		// TODO Hack to validate tag count until https://github.com/ansman/validate.js/pull/184 implemented
 		// if(this.props.id == 'form_tripCreateNew' || this.props.id == 'form_tripCreateDraft' || this.props.id == 'form_completeProfileStep1' || this.props.id == 'form_editHomeInterests')
@@ -35,29 +35,6 @@ const _Form = React.createClass({
 		{
 			// Prevent form submission
       		event.preventDefault();
-
-			var _s = Object.assign({},s);
-      		_s.error_msgs = errors;
-      		this.props.updated(_s);
-      		
-
-      		// Scroll to error field with with smallest position
-      		var smallestIndex = null;
-      		var errorFieldNames = Object.keys(errors);
-  			for(var j =0;j<errorFieldNames.length;j++)
-	      		for(var i =0;i<s.fields.length;i++)
-	      			if(s.fields[i].name == errorFieldNames[j])
-	      			{
-						if(smallestIndex === null || s.fields[i].position < smallestIndex)
-							smallestIndex = i;
-						break;
-	      			}
-  			if(smallestIndex !== null)
-  			{
-  				var elm = document.getElementById(this.props.formName + s.fields[smallestIndex].name);
-  				if(elm)
-	      			elm.scrollIntoView({behavior: "smooth"});
-  			}
 		}
 
 		if(!errors && s.requestType == 'json')
@@ -185,11 +162,19 @@ const _Form = React.createClass({
 				onSubmit={(event)=>{
 					if(p.disableClickOnSubmit && !_this.submitted)
 					{
+						// TODO ** There is an issue here when MUI components show error messaging
+						// VCGCA contact form for example
+						// Perhaps move the disableClickOnSubmit to actual button component
+
 						// Don't submit now or else the user will be able to click again
 						// Only submit after a rerender
 						_this.submitted = true;
 						_this.setState({pointerEvents:'none'},()=>{
-							_this.manualSubmit(_this.manualSubmitCb);
+							// timeout required or else the call to
+							// manualSubmit click() event will not be triggered
+							setTimeout(()=>{
+								_this.manualSubmit(_this.manualSubmitCb);
+							},1);
 						});
 						event.preventDefault();
 						return;
