@@ -13,16 +13,16 @@ const StdTextFieldMUI = React.createClass({
         if(!muiProps.hasOwnProperty('floatingLabelText'))
             muiProps.floatingLabelText = p.field.label;
                   
-      	if(p.stdProps.type == "textarea")
+      	if(p.commonProps.type == "textarea")
       		muiProps.multiLine = true;
 
 		return (
 			<TextField
-				{...p.stdProps}
+				{...p.commonProps}
 			 	{...muiProps}
-		       	onChange={(e)=>p.onChange(this.refs[p.stdProps.name].getValue(), e)}
+		       	onChange={(e)=>p.onChange(this.refs[p.commonProps.name].getValue(), e)}
 		       	onBlur={p.events.onBlur}
-	          	errorText={fs.error_msgs[p.stdProps.name] ? fs.error_msgs[p.stdProps.name][0] : null}
+	          	errorText={fs.error_msgs[p.commonProps.name] ? fs.error_msgs[p.commonProps.name][0] : null}
 	        />
 
 	);}

@@ -24,33 +24,43 @@ const StdTextField = Component(React.createClass({
 		var fs = p.formState;
 		var s = this.state;
 
-		var stdProps = {
+		var commonProps = {
 			id:p.id,
 			name: p.name,
 			style:p.style || {},
 			className:p.className,
 	        ref:p.name,
-	        value:fs.data[p.name],
+	        value:fs.data[p.name] || "",
 	        type: p.type || "text"
 		}
 
 		if(!p.muiProps)
 		{
+			// Only allow extra props that are defined below
 			var extraProps = {};
-			extraProps.onChange = (e)=>{this.onChange(e.target.value.trim(), e)};
+			extraProps.onChange = (e)=>{this.onChange(e.target.value, e)};
 			extraProps.onBlur = p.events.onBlur;
-			return stdProps.type == "textarea" ?  <textarea {...stdProps} {...extraProps}/> : <input {...stdProps} {...extraProps}/>
+			extraProps.placeholder = p.placeholder || p.field.label;
+
+			if(fs.error_msgs[p.name])
+			{
+				if(p.errorClass)
+					extraProps.className = [commonProps.className, p.errorClass].join(' ');
+			}
+
+			return commonProps.type == "textarea" ?  <textarea {...commonProps} {...extraProps}/> : <input {...commonProps} {...extraProps}/>
 		}
 
 		if(!s.stdTextFieldMUI)
 			return null;
+
 
 		return (
 			<s.stdTextFieldMUI
 				formState={fs}
 				field={p.field}
 				onChange={(value,e)=>this.onChange(value,e)}
-				stdProps={stdProps}
+				commonProps={commonProps}
 				muiProps={p.muiProps}
 				events={p.events}
 			/>

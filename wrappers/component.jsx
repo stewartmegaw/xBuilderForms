@@ -82,13 +82,16 @@ const HOC_Component = function(cp) {
 		  	// There is currently an error so validate onChange
 		  	if(s.error_msgs[p.name])
 	  		{
-	  			// Only validate this field
-	  			var fieldVals = {};
-				fieldVals[p.name] = value;
-				var constraints = {};
-				constraints[p.name] = s.constraints[p.name];
-				var errors = validate(fieldVals, constraints);
-		  		_s.error_msgs = errors || {};
+	  			// Some validations rely on other fields values so we must pass
+	  			// in all other field values
+	  			var form = document.querySelector('form#'+"form_"+p.formName);
+	  			var formValues = validate.collectFormValues(form, {trim:true});
+				var errors = validate(formValues, s.constraints);
+				// Update errors but only for this field
+				if(errors)
+			  		_s.error_msgs = errors;
+			  	else
+			  		delete _s.error_msgs[p.name];
 	  		}
 
 	  		// if(p.updateNeighbours)

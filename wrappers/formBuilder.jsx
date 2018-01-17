@@ -117,6 +117,12 @@ const FormBuilder = React.createClass({
 	getFieldValue(field) {
 		return this.state.data[field];
 	},
+	getErrorsMsgs(field){
+		if(field)
+			return this.state.error_msgs[field];
+		else	
+			return this.state.error_msgs;
+	},
 	// isValid is a boolean wrapper for validate()
 	isValid(field, highlight, scroll) {
 		var errors = this.validate(field, highlight, scroll);
@@ -430,18 +436,23 @@ const FormBuilder = React.createClass({
 	getField(field){
 		var p = this.props;
 		var style = p.fieldStyles && p.fieldStyles[field.name] ? p.fieldStyles[field.name]  : {};
-		var className = p.fieldClassName && p.fieldClassName[field.name] ? p.fieldClassName[field.name]  : null;
+		var className = p.fieldClassName && p.fieldClassName[field.name] ? p.fieldClassName[field.name]  :  null;
+		if(p.globalFieldClassName)
+			className = [p.globalFieldClassName, className].join(" ");
+		var errorClass = p.fieldErrorClassName && p.fieldErrorClassName[field.name] ? p.fieldErrorClassName[field.name] : null;
+		if(p.globalErrorClassName)
+			errorClass =[p.globalErrorClassName, className].join(" ");
 		var events = p.fieldEvents && p.fieldEvents[field.name] ? p.fieldEvents[field.name] : {};
 		var manualProperties = p.fieldProperties && p.fieldProperties[field.name] ? p.fieldProperties[field.name] : null;
 
 
-		var component = this.getComponent(field, style, className, events, manualProperties);
+		var component = this.getComponent(field, style, className, events, manualProperties, errorClass);
 		if(p.fieldWrappers && p.fieldWrappers[field.name])
 			return p.fieldWrappers[field.name](component);
 		else
 			return component;
 	},
-	getComponent(field, style, className, events, manualProperties){
+	getComponent(field, style, className, events, manualProperties, errorClass){
 		let _this = this;
 		let s = this.state;
 		let p = this.props;
@@ -468,6 +479,7 @@ const FormBuilder = React.createClass({
 							events={events}
 							onChangeFinished={p.onChangeFinished}
 							type={field.type}
+							errorClass={errorClass}
 							{...manualProperties}
 						/>
 					);
@@ -742,7 +754,7 @@ const FormBuilder = React.createClass({
 			>
 				{p.msgStyle!='popup' && s.global_error_msg ? <div style={{color:"red"}}>{s.global_error_msg}</div> : null}
 				{p.msgStyle!='popup' && s.success_msg ? <div style={p.successMsgStyle || {}}>{s.success_msg}</div> : null}
-				{p.layout ? p.layout(this.getFieldByName) : this.getAllFields()}
+				{p.layout ? p.layout(this.getFieldByName, this.getErrorsMsgs()) : this.getAllFields()}
 
 		        <input key="hidden_form" type="hidden" name="formNameUniqueIdentifier" value={p.form.name} />
 		        
