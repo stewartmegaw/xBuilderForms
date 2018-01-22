@@ -13,7 +13,11 @@ import ArrowDownIcon from 'material-ui/svg-icons/navigation/arrow-downward';
 
 const AppState = require('xbuilder-core/lib/appState');
 
+var Style = require('xbuilder-forms/style/dynamicJson.css');
+
 import 'whatwg-fetch';
+
+const LASTEST_VERSION = 2;
 
 const StdDynamicJson = Component(React.createClass({
   componentDidMount(){
@@ -22,15 +26,27 @@ const StdDynamicJson = Component(React.createClass({
       var initialArgs = JSON.parse(this.props.initialValue);
       console.log(initialArgs);
 
-      var formData = new FormData();
-      formData.append("value", JSON.stringify(initialArgs));
+      var version = this.getVersion();
+      if(version)
+      {
+        var formData = new FormData();
+        formData.append("value", JSON.stringify(initialArgs));
+        formData.append('version', version);
 
-      this.makeRequest('/apps/:appId/dynamicJsonFieldInfoInitialize', formData);
+        this.makeRequest('/apps/:appId/dynamicJsonFieldInfoInitialize', formData);
+      }
     }
     else
     {
       this.clientMetaStructureUpdated();
     }
+  },
+  getVersion(){
+    var version = LASTEST_VERSION;
+    var processName = this.props.state.data.processName; // Expecting something like 'XDB1'
+    if(processName && processName.substring(0,3) == 'XDB')
+      version = processName.substring(3) || 1;
+    return version;
   },
   buildXDB(clientMetaStructure){
     if(!clientMetaStructure)
@@ -66,13 +82,18 @@ const StdDynamicJson = Component(React.createClass({
   clientMetaStructureUpdated(){
     var p = this.props;
 
-    var formData = new FormData();
-    var data  = this.buildXDB(this.clientMetaStructure);
-    p.updated(JSON.stringify(data));
-    data = JSON.stringify({_type:"root", _data:data});
-    formData.append("value", data);
+    var version = this.getVersion();
+    if(version)
+    {
+      var formData = new FormData();
+      var data  = this.buildXDB(this.clientMetaStructure);
+      p.updated(JSON.stringify(data));
+      data = JSON.stringify(data);
+      formData.append("value", data);
+      formData.append("version", version);
 
-    this.makeRequest('/apps/:appId/dynamicJsonFieldInfo', formData);
+      this.makeRequest('/apps/:appId/dynamicJsonFieldInfo', formData);
+    }
   },
   history:[],
   historyPointer:0,
@@ -129,7 +150,7 @@ const StdDynamicJson = Component(React.createClass({
         showMoreGroup.components.push(<span key={"span"+i} style={style}>{component}</span>);
       }
       else
-        components.push(<span key={"span"+i} style={style}>{component}</span>);
+        components.push(<span key={"span"+i} style={style} className={arg._root ? Style.rootProcess : null}>{component}</span>);
     }
 
 
@@ -193,6 +214,7 @@ const StdDynamicJson = Component(React.createClass({
       style.marginLeft = 10;
     if(arg._incomplete)
       style.background = '#e9ffd7';//Light green
+
     return style;
   },
   getTextInput(clientMetaStructure, i) {
@@ -347,7 +369,9 @@ const StdDynamicJson = Component(React.createClass({
           <ArrowForwardIcon />
         </IconButton>
         <br/>
-        {this.buildGUI(this.clientMetaStructure)}
+        <div className={Style.processesContainer}>
+          {this.buildGUI(this.clientMetaStructure)}
+        </div>
       </div>
 
   );}

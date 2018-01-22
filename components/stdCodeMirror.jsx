@@ -50,10 +50,10 @@ var StdCodeMirror = Component(React.createClass({
 
   render: function() {
 
-    var s = this.props.state;
+    var fs = this.props.state;
     var p = this.props;
 
-    var code = (this.state.dynamicData ? beautify(this.state.dynamicData,{indent_size: 2}) : null) || (s.data[p.name] ? beautify(s.data[p.name],{indent_size: 2}) : "");
+    var code = (this.state.dynamicData ? beautify(this.state.dynamicData,{indent_size: 2}) : null) || (fs.data[p.name] ? beautify(fs.data[p.name],{indent_size: 2}) : "");
     //Codemirror Options
     var cmOptions = {
       lineNumbers: true,
@@ -87,7 +87,13 @@ var StdCodeMirror = Component(React.createClass({
           style={{'display':'none'}}
           value={code}
           ></textarea>
-        <DynamicJson state={{fields:[]}} field={{name:""}} initialValue={code} updated={(data)=>this.setState({dynamicData:data})}/>
+        <DynamicJson
+          state={{fields:[]}}
+          field={{name:""}}
+          initialValue={code}
+          state={fs}
+          updated={(data)=>this.setState({dynamicData:data})}
+        />
       </div>
     );
   }
