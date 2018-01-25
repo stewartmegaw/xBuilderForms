@@ -3,12 +3,15 @@ const React = require('react');
 var Component = require('xbuilder-forms/wrappers/component');
 
 import IconButton from 'material-ui/IconButton';
+import IconMenu from 'material-ui/IconMenu';
+import ExpandIcon from 'material-ui/svg-icons/navigation/more-vert';
 import ArrowBackIcon from 'material-ui/svg-icons/navigation/arrow-back';
 import ArrowForwardIcon from 'material-ui/svg-icons/navigation/arrow-forward';
 import SelectField from 'material-ui/SelectField';
 import MenuItem from 'material-ui/MenuItem';
 
 import TextField from 'material-ui/TextField';
+import {Card,CardText} from 'material-ui/Card';
 import ArrowDownIcon from 'material-ui/svg-icons/navigation/arrow-downward';
 
 const AppState = require('xbuilder-core/lib/appState');
@@ -123,6 +126,7 @@ const StdDynamicJson = Component(React.createClass({
         if(_this.history.length > 20)
           _this.history.splice(0, 1);
         _this.historyPointer = _this.history.length - 1;
+        _this.clientMetaStructure = [];
         _this.clientMetaStructure = r._data;
         _this.forceUpdate();
     }).catch(function(err) {
@@ -133,7 +137,7 @@ const StdDynamicJson = Component(React.createClass({
     });
   },
   clientMetaStructure: [],
-  elmStyles:{verticalAlign:'middle',marginRight:10,height:48,lineHeight:'48px'},
+  elmStyles:{verticalAlign:'middle',marginRight:10,height:48,lineHeight:'48px',width:'auto'},
   buildGUI(clientMetaStructure){
     var _this = this;
     var components = [];
@@ -150,7 +154,12 @@ const StdDynamicJson = Component(React.createClass({
         showMoreGroup.components.push(<span key={"span"+i} style={style}>{component}</span>);
       }
       else
-        components.push(<span key={"span"+i} style={style} className={arg._root ? Style.rootProcess : null}>{component}</span>);
+      {
+        component = <span key={"span"+i} style={style} className={arg._root && arg._data.length ? Style.rootProcess : null}>{component}</span>
+        if(arg._root)
+          component = _this.getRootComponent(_clientMetaStructure, i, component);
+        components.push(component);
+      }
     }
 
 
@@ -205,6 +214,35 @@ const StdDynamicJson = Component(React.createClass({
     }
 
     return components;
+  },
+  getRootComponent(clientMetaStructure, i, component) {
+    var _this = this;
+
+    return (
+      <Card className={Style.processCard} key={"card"+i}>
+        <CardText>
+          {clientMetaStructure[i]._data.length ?
+            <IconMenu
+              iconButtonElement={<IconButton><ExpandIcon /></IconButton>}
+              anchorOrigin={{horizontal: 'left', vertical: 'top'}}
+              targetOrigin={{horizontal: 'left', vertical: 'top'}}
+              className={Style.processCardMenu}
+            >
+              <MenuItem
+                style={{minHeight:30,lineHeight:'30px',padding:'4px 0',fontSize:'12px'}}
+                innerDivStyle={{padding:'0 8px'}}
+                primaryText="Remove"
+                onClick={()=>{
+                  clientMetaStructure.splice(i,1);
+                  _this.clientMetaStructureUpdated();
+                }}
+              />
+            </IconMenu>
+          :null}
+          {component}
+        </CardText>
+      </Card>
+    );
   },
   getStyle(arg) {
     var style = {display:'inline-block',verticalAlign:'top'};
@@ -285,25 +323,44 @@ const StdDynamicJson = Component(React.createClass({
     if(!arg._hide)
     {
       var selectOptions = [];
-      // selectOptions.push(<option key={"o"+i} value={i}>{arg._type}</option>)
-      selectOptions.push(<MenuItem key={"o"+i} value={i} primaryText={arg._display || arg._type}/>)
+      var selectedIdx = null;
+      if(arg._options)
+      {
+        selectOptions.push(<MenuItem key={"menu"} value={null} primaryText={arg._options[0]._promptDisplay || "Select one:"}/>);
+        for(var j = 0; j < arg._options.length; j++)
+        {
+          if(arg._options[j]._type == arg._type)
+            selectedIdx = j;
+          selectOptions.push(<MenuItem key={"menu"+j} value={j} primaryText={arg._options[j]._display}/>);
+        }
 
-      componentGroup.push(
-        <SelectField
-          autoWidth={true} 
-          style={this.elmStyles}
-          key={"sel"+i}
-          value={i}
-          onChange={(event,index,value)=>{
-            var j = clientMetaStructure.length;
-            while(j--){
-              if(j != Number(value) && clientMetaStructure[j]._data && !clientMetaStructure[j]._data.length)
-                clientMetaStructure.splice(j, 1);
-            }
-            _this.clientMetaStructureUpdated();
-          }}
-        >{selectOptions}</SelectField>
-      );
+        componentGroup.push(
+            <SelectField
+              autoWidth={true}
+              style={this.elmStyles}
+              key={"sel"}
+              value={selectedIdx}
+              onChange={(event,index,value)=>{
+                if(value === null)
+                {
+                  // The null option is selected therefore empty the passed clientMetaStructure 
+                  clientMetaStructure.splice(i,1);
+                  _this.clientMetaStructureUpdated();
+                }
+                else if(value != selectedIdx)
+                {
+                  // Changing the _type will update any child _data contents
+                  arg._type = arg._options[value]._type;
+                  _this.clientMetaStructureUpdated();
+                }
+              }}
+            >{selectOptions}</SelectField>
+          );
+      }
+      else
+      {
+        componentGroup.push(<span key={"sp"} style={this.elmStyles}>{arg._display || arg._type}</span>);
+      }
     }
 
     if(arg.hasOwnProperty("_data") && arg._data.length)
@@ -344,6 +401,8 @@ const StdDynamicJson = Component(React.createClass({
 
     return (
       <div>
+        Define processes that will be executed when this route is requested
+        <br/>
         <IconButton
           iconStyle={{width: 18,height: 18}}
           style={{width: 34,height: 34,padding: 8}}

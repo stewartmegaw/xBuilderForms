@@ -1,8 +1,23 @@
+.processCard {
+	position: relative;
+	margin-bottom: 10px;
+}
+
+.processCard * {
+	white-space: normal;
+}
+
+.processCard .processCardMenu {
+	position: absolute !important;
+	right:0;
+	top:0;
+}
+
 .processesContainer {
     counter-reset: line;
 }
 .rootProcess {
-    display:block !important;
+    /*display:block !important;*/
     counter-increment: line;
     margin-left: 20px;
 }

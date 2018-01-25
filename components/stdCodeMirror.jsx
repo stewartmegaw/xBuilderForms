@@ -49,11 +49,11 @@ var StdCodeMirror = Component(React.createClass({
   },
 
   render: function() {
-
+    var s = this.state;
     var fs = this.props.state;
     var p = this.props;
 
-    var code = (this.state.dynamicData ? beautify(this.state.dynamicData,{indent_size: 2}) : null) || (fs.data[p.name] ? beautify(fs.data[p.name],{indent_size: 2}) : "");
+    var code = (s.dynamicData ? beautify(s.dynamicData,{indent_size: 2}) : null) || (fs.data[p.name] ? beautify(fs.data[p.name],{indent_size: 2}) : "");
     //Codemirror Options
     var cmOptions = {
       lineNumbers: true,
@@ -70,17 +70,19 @@ var StdCodeMirror = Component(React.createClass({
     };
 
     return (
-      <div style={{'marginTop':'10px','marginBottom':'10px',background:'#f7f7f7'}} id={p.id}>
-        <p style={{'fontSize':'14px','color':'rgba(0,0,0,0.54)'}}>
+      <div style={{'marginTop':'10px','marginBottom':'35px'}} id={p.id}>
+        <p style={{'fontSize':'14px','color':'rgba(0,0,0,0.54)'}} onClick={()=>this.setState({showCode:1})}>
           {p.field.label + ' (F11 for fullscreen)'}
         </p>
-        <CodeMirror
-          ref={p.name}
-          name={p.name}
-          value={code}
-          onFocusChange={this.onFocusChange}
-          options={cmOptions}
-          />
+        {s.showCode ?
+          <CodeMirror
+            ref={p.name}
+            name={p.name}
+            value={code}
+            onFocusChange={this.onFocusChange}
+            options={cmOptions}
+            />
+        :null}
         <textarea
           name={p.name}
           id={'textarea-' + p.name}
