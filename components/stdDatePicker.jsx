@@ -1,93 +1,107 @@
-// Safest way to confirm valid date object
-// Object.prototype.toString.call(date) === '[object Date]'
-// https://stackoverflow.com/questions/643782/how-to-check-whether-an-object-is-a-date
+const React = require("react");
 
-const React = require('react');
+const Component = require("../wrappers/component");
 
-import DatePicker from 'material-ui/DatePicker';
-import CloseSVG from 'material-ui/svg-icons/navigation/close';
-
-var Component = require('xbuilder-forms/wrappers/component');
-var validate = require("validate.js");
-
-require('date-util');
-
-const StdDatePicker = Component(React.createClass({
-    commonDateFormat: function(d){
-        return d.format('ddd, mmm dS yy')
+const StdDatePicker = Component(
+  React.createClass({
+    getInitialState() {
+      return {
+        stdDatePickerMUI: null
+      };
     },
-    getLocalTime:function(time){
-    	var d = new Date(Number(time))
-    	var _userOffset = d.getTimezoneOffset()*60000;
-    	return d.getTime()-_userOffset;
+    componentWillMount() {
+      let _this = this;
+
+      if (this.props.muiProps) {
+        require.ensure([], require => {
+          let component = require("xbuilder-forms/components/stdDatePickerMUI");
+          _this.setState({ stdDatePickerMUI: component });
+        });
+      }
     },
-	render: function() {
-		var s = this.props.state;
-		var p = this.props;
-		var _s = this.state;
+    getLocalTime(time) {
+      let d = new Date(Number(time));
+      let userOffset = d.getTimezoneOffset() * 60000;
+      return d.getTime() - userOffset;
+    },
+    render() {
+      let _this = this;
+      let p = this.props;
+      let fs = p.formState;
+      let s = this.state;
 
-		var minDate = null;
-		if(_s.options.minDate)
-		{
-			if(_s.options.minDate.value && _s.options.minDate.value.indexOf('now') != -1)
-			{
-				minDate = new Date();
-				minDate.setHours(0,0,0,0); // No time
-				minDate = minDate.getTime();
-				if(_s.options.minDate.add)
-					minDate += (_s.options.minDate.add * 1000 * 60 * 60 * 24);
-				minDate = new Date(minDate);
-			}
-			else
-				minDate = new Date(_s.options.minDate);	
-		}
-		// Set to today -2000 years (else its mui default is today-100 years)
-		else
-		{
-			minDate = new Date();
-			minDate.setHours(0,0,0,0); // No time
-			minDate = minDate.getTime() - (1000 * 60 * 60 * 24 * 365 * 300);
-			minDate = new Date(minDate);
-		}
+      let stdProps = {
+        id: p.id,
+        name: "dummy" + p.name,
+        style: p.style || {},
+        className: p.className,
+        "data-ignore": true,
+        onFocus: p.events.onFocus,
+        value: !fs.data[p.field.name]
+          ? ""
+          : new Date(this.getLocalTime(fs.data[p.field.name]))
+      };
 
-		var mui_props = {
-			name: "dummy"+p.name,
-			id:p.id,
-			mode:p.mode || 'landscape',
-			formatDate:p.formatDate || this.commonDateFormat,
-			style:{display:'inline-block'},
-			minDate:minDate,
-			floatingLabelText:p.floatingLabelText || "Date"
-		};
+      let picker = null;
 
-		return (
-			<div style={Object.assign({display:'inline-block'}, p.style || {})} >
-				<DatePicker
-				  {...mui_props}
-				  autoOk={true}
-		          ref={p.name}
-		          value={!s.data[p.name] ? null : new Date(this.getLocalTime(s.data[p.name]))}
-		          onChange={(event,date)=>{
-		          	this.onChange(Object.prototype.toString.call(date) === '[object Date]' ? date.getTime() : null, event)
-		          }}
-		          errorText={s.error_msgs[p.name] ? s.error_msgs[p.name][0] : null}
-				  data-ignored={true}
-				  onFocus={p.events.onFocus}
-		        />
-		        {s.data[p.name] ?
-			       	 <CloseSVG
-						style={{cursor:'pointer',position:'relative',left:-30,top:4,width:20,height:20}}
-						onClick={()=>{
-							var _s = Object.assign({},s);
-			  				_s.data[p.name] = null;
-			  				p.updated(_s);
-						}}
-					/>
-				:null}
-		        <input type="hidden" name={p.name} value={!s.data[p.name] ? "" : this.getLocalTime(s.data[p.name])} />
-	        </div>
-				  
-	);}
-}));
+      if (p.customRender) {
+        let onChange = (d, event) => {
+          let date = d;
+          // date can be a string like yyyy-mm-dd or a Date object
+          if (Object.prototype.toString.call(date) === "[object String]") {
+            date = new Date(date);
+          }
+          _this.onChange(date ? date.getTime() : "", event);
+        };
+        picker = p.customRender(stdProps, onChange);
+      } else {
+        if (!p.muiProps) {
+          stdProps.onChange = e => {
+            this.onChange(
+              e.target.value ? new Date(e.target.value).getTime() : "",
+              e
+            );
+          };
+          picker = (
+            <input
+              type="date"
+              {...stdProps}
+              value={
+                stdProps.value
+                  ? stdProps.value.toISOString().substring(0, 10)
+                  : ""
+              }
+            />
+          );
+        }
+
+        if (s.stdDatePickerMUI) {
+          picker = (
+            <s.stdDatePickerMUI
+              formState={fs}
+              field={p.field}
+              onChange={(v, e) => this.onChange(v, e)}
+              stdProps={stdProps}
+              muiProps={p.muiProps}
+              events={p.events}
+              updated={p.updated}
+            />
+          );
+        }
+      }
+
+      return (
+        <span>
+          {picker}
+          <input
+            type="hidden"
+            name={p.name}
+            value={!fs.data[p.name] ? "" : this.getLocalTime(fs.data[p.name])}
+          />
+        </span>
+      );
+    }
+  })
+);
 
 module.exports = StdDatePicker;

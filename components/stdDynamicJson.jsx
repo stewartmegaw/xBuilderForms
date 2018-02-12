@@ -73,10 +73,27 @@ const StdDynamicJson = Component(React.createClass({
       }
       else
       {
-        query.push({
+        var o = {
           _type: arg._type,
           _data: this.buildXDB(arg._data)
-        });
+        };
+
+        if(arg._type == 'emptyObjectsWrapper')
+        {
+          // If then the emptyObjectsWrapper contains nothing
+          // then ignore it and add nothing to query
+          if(o._data.length)
+          {
+            // If it does contain something then it will only contain
+            // one item. Add this item to query. In essence we are
+            // removing emptyObjectsWrapper but adding it's child.
+            // There is futher explaination as to why the emptyObjectsWrapper
+            // is necessary in the server side documentation. 
+            query.push(o._data[0]);  
+          }
+        }
+        else
+          query.push(o);
       }
     }
 
@@ -201,15 +218,18 @@ const StdDynamicJson = Component(React.createClass({
 
     if(showMoreGroup.components.length)
     {
+            // onClick={(e)=>{
+            // e.target.nextSibling.style.display = 'inline-block';
+            // e.target.style.display = 'none';
+            // // Remove any potential double margin
+            // if(e.target.nextSibling.firstChild.style.marginLeft=='10px')
+            //   e.target.parentNode.style.marginLeft=0;
       components.splice(showMoreGroup.idx=="start" ? 0 : (showMoreGroup.idx=="end" ? components.length : showMoreGroup.idx) , 0, <span key="smg">
-          <button type="button" style={Object.assign({},this.elmStyles,{padding:0})} onClick={(e)=>{
-            e.target.nextSibling.style.display = 'inline-block';
-            e.target.style.display = 'none';
-            // Remove any potential double margin
-            if(e.target.nextSibling.firstChild.style.marginLeft=='10px')
-              e.target.parentNode.style.marginLeft=0;
-          }}>...</button>
-          <span style={{display:'none'}}>{showMoreGroup.components}</span>
+          <Card>
+            <CardText>
+              {showMoreGroup.components}
+            </CardText>
+          </Card>
         </span>);
     }
 
@@ -245,13 +265,16 @@ const StdDynamicJson = Component(React.createClass({
     );
   },
   getStyle(arg) {
-    var style = {display:'inline-block',verticalAlign:'top'};
+    if(arg._root)
+      return {display:'block'};
+
+    var style = {display:'inline',verticalAlign:'top'};
     if(arg._nl)
-      style.display = 'table'; // Like inline-block but breaks line
+      style.display = 'block'; // Like inline-block but breaks line
     if(arg._indent)
       style.marginLeft = 10;
     if(arg._incomplete)
-      style.background = '#e9ffd7';//Light green
+      style.background = 'rgb(234, 248, 255)';//Light green
 
     return style;
   },

@@ -2,9 +2,9 @@
   "name": "xbuilder-forms",
   "version": "0.1.36",
   "description": "",
-  "main": "dist/index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "flow": "flow"
   },
   "repository": {
     "type": "git",
@@ -16,6 +16,16 @@
     "url": "https://github.com/stewartmegaw/xBuilderForms/issues"
   },
   "homepage": "https://github.com/stewartmegaw/xBuilderForms#readme",
-  "devDependencies": {},
-  "dependencies": {}
+  "devDependencies": {
+    "babel-eslint": "^8.2.1",
+    "eslint": "^4.17.0",
+    "eslint-plugin-react": "^7.6.1"
+  },
+  "dependencies": {
+    "date-util": "^1.2.1",
+    "material-ui": "0.18.3",
+    "prettier": "^1.10.2",
+    "react": "15.4.2",
+    "validate.js": "git+ssh://git@github.com/stewartmegaw/validate.js.git"
+  }
 }
