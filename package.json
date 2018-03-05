@@ -1,6 +1,6 @@
 {
   "name": "xbuilder-forms",
-  "version": "0.1.36",
+  "version": "0.1.37",
   "description": "Quickly add beautiful and powerful forms to your application",
   "scripts": {
     "test": "jest --verbose",
