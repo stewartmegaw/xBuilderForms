@@ -11,7 +11,7 @@
     "build": "webpack --config webpack.config.js --env.prod=1",
     "build:progress": "webpack --config webpack.config.js --progress --env.prod=1",
     "build:dev": "webpack --config webpack.config.js --watch --progress --env.prod=0",
-    "prepublish": "npm test:coverage && npm run build"
+    "prepublish": "npm run build"
   },
   "jest": {
     "setupFiles": [
@@ -83,6 +83,5 @@
     "react-dom": "^16.2.0",
     "validate.js": "git+ssh://git@github.com/stewartmegaw/validate.js.git",
     "whatwg-fetch": "^2.0.3",
-    "xbuilder-core": "git+https://90c8cbd971fd98f825777e93b9c54a2c78213c2b:x-oauth-basic@github.com/stewartmegaw/xBuilderCore.git"
   }
 }
