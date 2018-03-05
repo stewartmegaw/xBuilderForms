@@ -9,7 +9,7 @@ import CloseSVG from "material-ui/svg-icons/navigation/close";
 
 require("date-util");
 
-const StdDatePickerMUI = React.createClass({
+const DatePickerMUI = React.createClass({
   commonDateFormat(d) {
     return d.format("ddd, mmm dS yy");
   },
@@ -82,4 +82,4 @@ const StdDatePickerMUI = React.createClass({
   }
 });
 
-module.exports = StdDatePickerMUI;
+module.exports = DatePickerMUI;

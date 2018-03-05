@@ -1,19 +1,20 @@
 const React = require('react');
 
 
-var Component = require('xbuilder-forms/wrappers/component');
+var Component = require('../wrappers/component');
 
-const VideoRecorder = require('xbuilder-templates/video/videoRecorder');
-const VideoPlayer = require('xbuilder-templates/video/videoPlayer');
-const FileUtils = require('xbuilder-core/lib/fileUtils');
+const VideoRecorder = require('../templates/videoRecorder');
+const VideoPlayer = require('../templates/videoPlayer');
+const FileUtils = require('../utils/fileUtils');
 
-const Loading = require('xbuilder-core/helpers/loading');
+console.log("TODO: xbuilder-core needs implemented on npm as public repo");
+const Loading = null;//require('xbuilder-core/helpers/loading');
 
 
 import FlatButton from 'material-ui/FlatButton';
 import VideoSVG from 'material-ui/svg-icons/av/videocam';
 import SaveSVG from 'material-ui/svg-icons/file/file-upload';
-const styles = require('xbuilder-forms/style/videoCapture.css');
+const styles = require('../style/videoCapture.css');
 
 // Test for MediaRecorder API enabled
 var mediaRecorderSupported = 0;

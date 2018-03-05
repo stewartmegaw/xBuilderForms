@@ -3,10 +3,10 @@ const React = require('react');
 import {RadioButton, RadioButtonGroup} from 'material-ui/RadioButton';
 import MenuItem from 'material-ui/MenuItem';
 
-var Component = require('xbuilder-forms/wrappers/component');
+var Component = require('../wrappers/component');
 var validate = require("validate.js");
 
-var style = require('xbuilder-forms/style/radio.css');
+var style = require('../style/radio.css');
 
 const StdRadio = Component(React.createClass({
 	getValue: function(){

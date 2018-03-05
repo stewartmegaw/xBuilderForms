@@ -1,6 +1,6 @@
 const React = require('react');
 
-var Component = require('xbuilder-forms/wrappers/component');
+var Component = require('../wrappers/component');
 
 const StdTextField = Component(React.createClass({
 	getInitialState(){
@@ -14,7 +14,7 @@ const StdTextField = Component(React.createClass({
 		if(this.props.muiProps)
 		{	
 			require.ensure([], (require) => {
-	              var component = require('xbuilder-forms/components/stdTextFieldMUI');
+	              var component = require('./mui/textFieldMUI');
 	              _this.setState({stdTextFieldMUI:component});
 	        });
 		}

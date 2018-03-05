@@ -6,7 +6,8 @@ import 'whatwg-fetch';
 
 import intersect from 'boundless-utils-object-intersection';
 
-var style = require('xbuilder-forms/style/form.css');
+var style = require('../style/form.css');
+
 
 const _Form = React.createClass({
 	getInitialState(){

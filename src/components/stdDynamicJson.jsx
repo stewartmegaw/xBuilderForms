@@ -1,6 +1,6 @@
 const React = require('react');
 
-var Component = require('xbuilder-forms/wrappers/component');
+var Component = require('../wrappers/component');
 
 import IconButton from 'material-ui/IconButton';
 import IconMenu from 'material-ui/IconMenu';
@@ -14,9 +14,9 @@ import TextField from 'material-ui/TextField';
 import {Card,CardText} from 'material-ui/Card';
 import ArrowDownIcon from 'material-ui/svg-icons/navigation/arrow-downward';
 
-const AppState = require('xbuilder-core/lib/appState');
+// const AppState = require('xbuilder-core/lib/appState');
 
-var Style = require('xbuilder-forms/style/dynamicJson.css');
+var Style = require('../style/dynamicJson.css');
 
 import 'whatwg-fetch';
 
@@ -123,7 +123,8 @@ const StdDynamicJson = Component(React.createClass({
     var urlParts = requestUrl.split('/');
     for(var i = 0; i < urlParts.length; i++)
       if(urlParts[i][0] == ':')
-        urlParts[i] = AppState.getProp('routeParams.'+urlParts[i].substring(1)); 
+        // urlParts[i] = AppState.getProp('routeParams.'+urlParts[i].substring(1)); 
+        console.log("AppState call needs replaced");
     requestUrl = urlParts.join('/');
 
     fetch(requestUrl + '?XDEBUG_SESSION_START=netbeans-xdebug',{

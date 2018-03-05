@@ -1,10 +1,10 @@
 const React = require('react');
 
-var Component = require('xbuilder-forms/wrappers/component');
+var Component = require('../wrappers/component');
 
 var validate = require("validate.js");
 
-var style = require('alpha-client-lib/style/file.css');
+var style = require('../style/file.css');
 
 const StdFile = Component(React.createClass({
 	getInitialState:function() {

@@ -3,20 +3,20 @@
 
 const React = require("react");
 
-var _Form = require("xbuilder-forms/components/form");
+let _Form = require("../components/form");
 
-var validate = require("validate.js");
+let validate = require("validate.js");
 
-require("xbuilder-forms/style/global.gcss");
+require("../style/global.inject.css");
 
-const AppState = require("xbuilder-core/lib/appState");
+// const AppState = require("xbuilder-core/lib/appState");
 
 const parseUrl = require("parse-url");
 
 const FormBuilder = React.createClass({
   getInitialState: function() {
     // Ensure form has defaults
-    var s = Object.assign(
+    let s = Object.assign(
       {
         components: {},
         data: {},
@@ -29,7 +29,7 @@ const FormBuilder = React.createClass({
       this.props.form
     );
 
-    var parsedUrl = parseUrl(serverSide ? uri : window.location.href);
+    let parsedUrl = parseUrl(serverSide ? uri : window.location.href);
 
     if (!this.props.manual) {
       // Sort fields by desired postion
@@ -38,44 +38,50 @@ const FormBuilder = React.createClass({
       });
 
       // Set default values
-      var data = {};
-      var fields = s.fields;
-      var filePresent = false;
-      for (var i = 0; i < fields.length; i++) {
+      let data = {};
+      let fields = s.fields;
+      let filePresent = false;
+      for (let i = 0; i < fields.length; i++) {
         if (fields[i].type == "file") filePresent = true;
 
-        var defaultValue = fields[i].defaultValue;
+        let defaultValue = fields[i].defaultValue;
         if (defaultValue && defaultValue.length != 0) {
           switch (defaultValue.type) {
             case "stateProperty":
-              var prop_path = defaultValue.value;
+              let prop_path = defaultValue.value;
               // Get appState value from prop_path string
-              var _appState = Object.assign({}, appState);
-              for (
-                var j = 0,
-                  prop_path = prop_path.split("."),
-                  len = prop_path.length;
-                j < len;
-                j++
-              ) {
-                _appState = _appState[prop_path[j]];
-              }
-              data[fields[i].name] = _appState;
+              console.log(
+                "TODO stateProperty default value must be implemented without using appState"
+              );
+              // let _appState = Object.assign({}, appState);
+              // for (
+              //   let j = 0,
+              //     prop_path = prop_path.split("."),
+              //     len = prop_path.length;
+              //   j < len;
+              //   j++
+              // ) {
+              //   _appState = _appState[prop_path[j]];
+              // }
+              // data[fields[i].name] = _appState;
               break;
             case "simple":
               data[fields[i].name] = defaultValue.value;
               break;
             case "fromRouteParam":
-              data[fields[i].name] = AppState.getProp(
-                "routeParams." + defaultValue.param
+              console.log(
+                "TODO fromRouteParam default value must be implemented without using appState"
               );
+              // data[fields[i].name] = AppState.getProp(
+              //   "routeParams." + defaultValue.param
+              // );
               break;
             case "clone":
               this.clones[fields[i].name] = defaultValue.value;
               break;
             case "useQuery":
-              var query_fieldname = defaultValue.field || fields[i].name;
-              var queryObject = parsedUrl.search
+              let query_fieldname = defaultValue.field || fields[i].name;
+              let queryObject = parsedUrl.search
                 ? JSON.parse(
                     '{"' +
                       decodeURI(parsedUrl.search)
@@ -89,7 +95,7 @@ const FormBuilder = React.createClass({
               break;
             case "date":
               if (defaultValue.value.indexOf("now") != -1) {
-                var d = new Date();
+                let d = new Date();
                 d.setHours(0, 0, 0, 0); // No time
                 data[fields[i].name] = d.getTime();
                 if (defaultValue.add)
@@ -113,9 +119,12 @@ const FormBuilder = React.createClass({
 
     // If the action does not already have a query string
     // attach the current redirect query param if it exists
-    if (AppState.getProp("queryParams.redirect") && s.action.indexOf("?") == -1)
-      s.action =
-        s.action + "?redirect=" + AppState.getProp("queryParams.redirect");
+    console.log(
+      "TODO AppState queryParams.redirect default value must be implemented without using appState"
+    );
+    // if (AppState.getProp("queryParams.redirect") && s.action.indexOf("?") == -1)
+    //   s.action =
+    //     s.action + "?redirect=" + AppState.getProp("queryParams.redirect");
 
     return s;
   },
@@ -134,49 +143,49 @@ const FormBuilder = React.createClass({
   },
   // isValid is a boolean wrapper for validate()
   isValid(field, highlight, scroll) {
-    var errors = this.validate(field, highlight, scroll);
+    let errors = this.validate(field, highlight, scroll);
     if (!errors) return true;
     else return false;
   },
   // return error messages or null is valid
   validate(field, highlight, scroll) {
-    var s = this.state;
-    var p = this.props;
+    let s = this.state;
+    let p = this.props;
 
     // If field empty validate entire form
     if (!field) {
-      var form = document.querySelector("form#" + "form_" + p.form.name);
+      let form = document.querySelector("form#" + "form_" + p.form.name);
 
-      var formValues = validate.collectFormValues(form, { trim: true });
+      let formValues = validate.collectFormValues(form, { trim: true });
 
-      var constraints = Object.assign({}, s.constraints);
+      let constraints = Object.assign({}, s.constraints);
 
       // Before validating we must alter keys in the constraints
       // object that belong to an input with an array value
-      for (var key in formValues)
+      for (let key in formValues)
         if (key.indexOf("[]") > -1) {
           constraints[key] = constraints[key.replace("[]", "")];
           delete constraints[key.replace("[]", "")];
         }
     } else {
       // Only validate field
-      var formValues = {};
+      let formValues = {};
       formValues[field] = s.data[field];
-      var constraints = {};
+      let constraints = {};
       constraints[field] = s.constraints[field];
     }
 
-    var errors = validate(formValues, constraints);
+    let errors = validate(formValues, constraints);
 
     if (errors) {
       if (highlight) this.setState({ error_msgs: errors });
 
       if (scroll) {
         // Scroll to error field with with smallest position
-        var smallestIndex = null;
-        var errorFieldNames = Object.keys(errors);
-        for (var j = 0; j < errorFieldNames.length; j++)
-          for (var i = 0; i < s.fields.length; i++)
+        let smallestIndex = null;
+        let errorFieldNames = Object.keys(errors);
+        for (let j = 0; j < errorFieldNames.length; j++)
+          for (let i = 0; i < s.fields.length; i++)
             if (s.fields[i].name == errorFieldNames[j]) {
               if (
                 smallestIndex === null ||
@@ -186,7 +195,7 @@ const FormBuilder = React.createClass({
               break;
             }
         if (smallestIndex !== null) {
-          var elm = document.getElementById(
+          let elm = document.getElementById(
             p.form.name + s.fields[smallestIndex].name
           );
           if (elm) elm.scrollIntoView({ behavior: "smooth" });
@@ -199,9 +208,9 @@ const FormBuilder = React.createClass({
   componentDidMount() {
     // Get the components async or we will have a lot of used code
     if (!serverSide && !this.props.manual) {
-      var _this = this;
-      var s = this.state;
-      var components = s.components;
+      let _this = this;
+      let s = this.state;
+      let components = s.components;
 
       s.fields.map(function(field) {
         switch (field.type) {
@@ -210,7 +219,7 @@ const FormBuilder = React.createClass({
           case "textarea":
             if (!components.stdTextField)
               require.ensure([], require => {
-                components.stdTextField = require("xbuilder-forms/components/stdTextField");
+                components.stdTextField = require("../components/stdTextField");
                 _this.setState(
                   { components: components },
                   _this.componentsLoaded
@@ -221,7 +230,7 @@ const FormBuilder = React.createClass({
           case "multiSelect":
             if (!components.stdSelect)
               require.ensure([], require => {
-                components.stdSelect = require("xbuilder-forms/components/stdSelect");
+                components.stdSelect = require("../components/stdSelect");
                 _this.setState(
                   { components: components },
                   _this.componentsLoaded
@@ -231,7 +240,7 @@ const FormBuilder = React.createClass({
           case "date":
             if (!components.stdDatePicker)
               require.ensure([], require => {
-                components.stdDatePicker = require("xbuilder-forms/components/stdDatePicker");
+                components.stdDatePicker = require("../components/stdDatePicker");
                 _this.setState({ components: components }, () => {
                   // Validatejs requires some initialization when using the date validation
                   // http://validatejs.org/#validators-date
@@ -246,7 +255,7 @@ const FormBuilder = React.createClass({
                     },
                     // Input is a unix timestamp
                     format: function(value, options) {
-                      var format = options.dateOnly
+                      let format = options.dateOnly
                         ? "YYYY-MM-DD"
                         : "YYYY-MM-DD hh:mm:ss";
                       return moment.utc(value).format(format);
@@ -260,7 +269,7 @@ const FormBuilder = React.createClass({
           case "placeSuggest":
             if (!components.stdPlaceSuggest)
               require.ensure([], require => {
-                components.stdPlaceSuggest = require("xbuilder-forms/components/stdPlaceSuggest");
+                components.stdPlaceSuggest = require("../components/stdPlaceSuggest");
                 _this.setState(
                   { components: components },
                   _this.componentsLoaded
@@ -270,7 +279,7 @@ const FormBuilder = React.createClass({
           case "videoCapture":
             if (!components.stdVideoCapture)
               require.ensure([], require => {
-                components.stdVideoCapture = require("xbuilder-forms/components/stdVideoCapture");
+                components.stdVideoCapture = require("../components/stdVideoCapture");
                 _this.setState(
                   { components: components },
                   _this.componentsLoaded
@@ -280,7 +289,7 @@ const FormBuilder = React.createClass({
           case "tagSuggest":
             if (!components.stdTagSuggest)
               require.ensure([], require => {
-                components.stdTagSuggest = require("xbuilder-forms/components/stdTagSuggest");
+                components.stdTagSuggest = require("../components/stdTagSuggest");
                 _this.setState(
                   { components: components },
                   _this.componentsLoaded
@@ -290,7 +299,7 @@ const FormBuilder = React.createClass({
           case "radio":
             if (!components.stdRadio)
               require.ensure([], require => {
-                components.stdRadio = require("xbuilder-forms/components/stdRadio");
+                components.stdRadio = require("../components/stdRadio");
                 _this.setState(
                   { components: components },
                   _this.componentsLoaded
@@ -300,7 +309,7 @@ const FormBuilder = React.createClass({
           case "location":
             if (!components.stdLocation)
               require.ensure([], require => {
-                components.stdLocation = require("xbuilder-forms/components/stdLocation");
+                components.stdLocation = require("../components/stdLocation");
                 _this.setState(
                   { components: components },
                   _this.componentsLoaded
@@ -310,7 +319,7 @@ const FormBuilder = React.createClass({
           case "codeMirror":
             if (!components.stdCodeMirror)
               require.ensure([], require => {
-                components.stdCodeMirror = require("xbuilder-forms/components/stdCodeMirror");
+                components.stdCodeMirror = require("../components/stdCodeMirror");
                 _this.setState(
                   { components: components },
                   _this.componentsLoaded
@@ -320,7 +329,7 @@ const FormBuilder = React.createClass({
           case "file":
             if (!components.stdFile)
               require.ensure([], require => {
-                components.stdFile = require("xbuilder-forms/components/stdFile");
+                components.stdFile = require("../components/stdFile");
                 _this.setState(
                   { components: components },
                   _this.componentsLoaded
@@ -330,7 +339,7 @@ const FormBuilder = React.createClass({
           case "dynamicJson":
             if (!components.stdDynamicJson)
               require.ensure([], require => {
-                components.stdDynamicJson = require("xbuilder-forms/components/stdDynamicJson");
+                components.stdDynamicJson = require("../components/stdDynamicJson");
                 _this.setState(
                   { components: components },
                   _this.componentsLoaded
@@ -341,7 +350,7 @@ const FormBuilder = React.createClass({
           case "submit":
             if (!components.stdButton)
               require.ensure([], require => {
-                components.stdButton = require("xbuilder-forms/components/stdButton");
+                components.stdButton = require("../components/stdButton");
                 _this.setState(
                   { components: components },
                   _this.componentsLoaded
@@ -358,9 +367,9 @@ const FormBuilder = React.createClass({
     }
   },
   componentsLoaded() {
-    var allLoaded = true;
+    let allLoaded = true;
 
-    var components = this.state.components;
+    let components = this.state.components;
 
     this.state.fields.map(function(field) {
       switch (field.type) {
@@ -450,7 +459,7 @@ const FormBuilder = React.createClass({
     });
 
     if (allLoaded) {
-      var _this = this;
+      let _this = this;
       this.setState({ componentsLoaded: 1 }, function() {
         if (_this.props.componentsLoaded) _this.props.componentsLoaded();
       });
@@ -461,45 +470,45 @@ const FormBuilder = React.createClass({
     this.refs.form.manualSubmit(success_cb);
   },
   getAllFields() {
-    var fields = [];
-    for (var i = 0; i < this.state.fields.length; i++)
+    let fields = [];
+    for (let i = 0; i < this.state.fields.length; i++)
       fields.push(this.getField(this.state.fields[i]));
 
     return fields;
   },
   getFieldByName(name) {
-    for (var i = 0; i < this.state.fields.length; i++)
+    for (let i = 0; i < this.state.fields.length; i++)
       if (this.state.fields[i].name == name)
         return this.getField(this.state.fields[i]);
   },
   getField(field) {
-    var p = this.props;
-    var style =
+    let p = this.props;
+    let style =
       p.fieldStyles && p.fieldStyles[field.name]
         ? p.fieldStyles[field.name]
         : {};
-    var className =
+    let className =
       p.fieldClassName && p.fieldClassName[field.name]
         ? p.fieldClassName[field.name]
         : null;
     if (p.globalFieldClassName)
       className = [p.globalFieldClassName, className].join(" ");
-    var errorClass =
+    let errorClass =
       p.fieldErrorClassName && p.fieldErrorClassName[field.name]
         ? p.fieldErrorClassName[field.name]
         : null;
     if (p.globalErrorClassName)
       errorClass = [p.globalErrorClassName, className].join(" ");
-    var events =
+    let events =
       p.fieldEvents && p.fieldEvents[field.name]
         ? p.fieldEvents[field.name]
         : {};
-    var manualProperties =
+    let manualProperties =
       p.fieldProperties && p.fieldProperties[field.name]
         ? p.fieldProperties[field.name]
         : null;
 
-    var component = this.getComponent(
+    let component = this.getComponent(
       field,
       style,
       className,
@@ -516,8 +525,8 @@ const FormBuilder = React.createClass({
     let s = this.state;
     let p = this.props;
 
-    var component;
-    var options = Object.assign({}, field.options);
+    let component;
+    let options = Object.assign({}, field.options);
 
     switch (field.type) {
       case "text":

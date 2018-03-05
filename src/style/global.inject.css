@@ -1,0 +1,17 @@
+.formDefaults input {
+    display:block;
+}
+
+.formDefaults select {
+    display:block;
+}
+
+.formDefaults button {
+    display:block;
+}
+
+.clearFix:after {
+	clear:both;
+	content: "";
+	display: table;
+}

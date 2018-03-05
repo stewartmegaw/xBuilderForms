@@ -1,31 +1,88 @@
 {
   "name": "xbuilder-forms",
   "version": "0.1.36",
-  "description": "",
+  "description": "Quickly add beautiful and powerful forms to your application",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "flow": "flow"
+    "test": "jest --verbose",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "flow": "flow",
+    "createdoc": "jsdoc src -r -d docs",
+    "build": "webpack --config webpack.config.js --env.prod=1",
+    "build:progress": "webpack --config webpack.config.js --progress --env.prod=1",
+    "build:dev": "webpack --config webpack.config.js --watch --progress --env.prod=0",
+    "prepublish": "npm test:coverage && npm run build"
+  },
+  "jest": {
+    "setupFiles": [
+      "./jestsetup.js"
+    ],
+    "//": "This moduleNameMapper helps jest work with css modules",
+    "moduleNameMapper": {
+      "\\.(jpg|jpeg|png|gif|eot|otf|webp|svg|ttf|woff|woff2|mp4|webm|wav|mp3|m4a|aac|oga)$": "<rootDir>/__mocks__/fileMock.js",
+      "\\.(css|less)$": "identity-obj-proxy"
+    }
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/stewartmegaw/xBuilderForms.git"
   },
-  "author": "Stewart Megaw <stew@glide.design> (http://glide.design)",
+  "author": "Stewart Megaw <stew@xbuilder.co.uk>",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/stewartmegaw/xBuilderForms/issues"
   },
   "homepage": "https://github.com/stewartmegaw/xBuilderForms#readme",
+  "keywords": [
+    "forms",
+    "form",
+    "builder"
+  ],
+  "files": [
+    "dist"
+  ],
+  "main": "./src/main.js",
+  "unpkg": "./dist/bundle.min.js",
   "devDependencies": {
+    "babel-core": "^6.26.0",
     "babel-eslint": "^8.2.1",
-    "eslint": "^4.17.0",
-    "eslint-plugin-react": "^7.6.1"
+    "babel-jest": "^22.4.1",
+    "babel-loader": "^6.2.1",
+    "babel-preset-env": "^1.6.1",
+    "babel-preset-react": "^6.3.13",
+    "css-loader": "^0.27.0",
+    "enzyme": "^3.3.0",
+    "enzyme-adapter-react-16": "^1.1.1",
+    "enzyme-to-json": "^3.3.1",
+    "eslint": "^4.18.2",
+    "eslint-plugin-react": "^7.7.0",
+    "extract-text-webpack-plugin": "^3.0.0",
+    "identity-obj-proxy": "^3.0.0",
+    "jest": "^22.4.2",
+    "jsdocs": "^1.0.0",
+    "prettier": "^1.10.2",
+    "react-test-renderer": "^16.2.0",
+    "regenerator-runtime": "^0.11.1",
+    "style-loader": "^0.13.0",
+    "webpack": "^3.10.0"
   },
   "dependencies": {
+    "boundless-utils-object-intersection": "^1.1.0",
+    "codemirror": "^5.35.0",
     "date-util": "^1.2.1",
+    "events": "^2.0.0",
+    "flux": "^3.1.3",
+    "google-maps-api": "^2.0.1",
+    "jquery-param": "^1.0.0",
+    "js-beautify": "^1.7.5",
+    "keymirror": "^0.1.1",
     "material-ui": "0.18.3",
-    "prettier": "^1.10.2",
-    "react": "15.4.2",
-    "validate.js": "git+ssh://git@github.com/stewartmegaw/validate.js.git"
+    "parse-url": "^3.0.2",
+    "react": "^16.1.0",
+    "react-codemirror": "^1.0.0",
+    "react-dom": "^16.2.0",
+    "validate.js": "git+ssh://git@github.com/stewartmegaw/validate.js.git",
+    "whatwg-fetch": "^2.0.3",
+    "xbuilder-core": "git+https://90c8cbd971fd98f825777e93b9c54a2c78213c2b:x-oauth-basic@github.com/stewartmegaw/xBuilderCore.git"
   }
 }

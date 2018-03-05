@@ -1,6 +1,6 @@
 const React = require('react');
 
-var Component = require('xbuilder-forms/wrappers/component');
+var Component = require('../wrappers/component');
 
 const StdButton = Component(React.createClass({
 	getInitialState(){
@@ -14,7 +14,7 @@ const StdButton = Component(React.createClass({
 		if(this.props.muiProps)
 		{	
 			require.ensure([], (require) => {
-	              var component = require('xbuilder-forms/components/stdButtonMUI');
+	              var component = require('./mui/buttonMUI');
 	              _this.setState({stdButtonMUI:component});
 	        });
 		}

@@ -14,7 +14,7 @@ const StdDatePicker = Component(
 
       if (this.props.muiProps) {
         require.ensure([], require => {
-          let component = require("xbuilder-forms/components/stdDatePickerMUI");
+          let component = require("./mui/datePickerMUI");
           _this.setState({ stdDatePickerMUI: component });
         });
       }

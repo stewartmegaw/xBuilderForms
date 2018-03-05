@@ -1,6 +1,6 @@
 const React = require("react");
 
-const Component = require("xbuilder-forms/wrappers/component");
+const Component = require("../wrappers/component");
 
 const StdSelect = Component(
   React.createClass({
@@ -14,7 +14,7 @@ const StdSelect = Component(
 
       if (this.props.muiProps) {
         require.ensure([], require => {
-          let component = require("xbuilder-forms/components/stdSelectMUI");
+          let component = require("./mui/selectMUI");
           _this.setState({ stdSelectMUI: component });
         });
       }

@@ -2,9 +2,9 @@ import React from 'react';
 import RaisedButton from 'material-ui/RaisedButton';
 import {Card, CardActions, CardTitle} from 'material-ui/Card';
 
-var Component = require('xbuilder-forms/wrappers/component');
+var Component = require('../wrappers/component');
 
-var DynamicJson = require('xbuilder-forms/components/stdDynamicJson');
+var DynamicJson = require('./stdDynamicJson');
 
 var CodeMirror = require('react-codemirror');
 var beautify = require('js-beautify').js_beautify;
@@ -15,7 +15,7 @@ require('codemirror/mode/htmlmixed/htmlmixed');
 require('codemirror/mode/markdown/markdown');
 require('codemirror/addon/display/fullscreen');
 
-require('xbuilder-forms/style/codeMirror.gcss');
+require('../style/codeMirror.inject.css');
 
 var StdCodeMirror = Component(React.createClass({
   getInitialState(){

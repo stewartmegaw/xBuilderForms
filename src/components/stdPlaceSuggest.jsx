@@ -1,16 +1,17 @@
 const React = require('react');
 
-var Component = require('xbuilder-forms/wrappers/component');
+var Component = require('../wrappers/component');
 
-const AppState = require('xbuilder-core/lib/appState');
+// const AppState = require('xbuilder-core/lib/appState');
 
-var apiKey = AppState.getProp('config.maps_api_key');
+// var apiKey = AppState.getProp('config.maps_api_key');
+console.log("TODO: Pass API KEY as field option");
 if(!serverSide && apiKey)
 {   
 	var mapsapi = require( 'google-maps-api' )(apiKey, ['places']);
 }
 
-var Geocode = require('xbuilder-core/lib/geocode');
+var Geocode = require('../utils/geocode');
 
 const param = require("jquery-param");
 const parseUrl = require('parse-url');
@@ -18,7 +19,7 @@ import AutoComplete from 'material-ui/AutoComplete';
 import SearchSVG from 'material-ui/svg-icons/action/search';
 var validate = require("validate.js");
 
-const styles = require('xbuilder-forms/style/placeSuggest.css');
+const styles = require('../style/placeSuggest.css');
 
 const StdPlaceSuggest = Component(React.createClass({
 	getInitialState:function() {

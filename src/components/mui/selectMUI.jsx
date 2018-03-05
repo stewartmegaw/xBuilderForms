@@ -3,7 +3,7 @@ const React = require('react');
 import SelectField from 'material-ui/SelectField';
 import MenuItem from 'material-ui/MenuItem';
 
-const StdSelectMUI = React.createClass({
+const SelectMUI = React.createClass({
 	render: function() {
 		var p = this.props;
 		var fs = p.formState;
@@ -50,4 +50,4 @@ const StdSelectMUI = React.createClass({
 	);}
 });
 
-module.exports = StdSelectMUI;
+module.exports = SelectMUI;

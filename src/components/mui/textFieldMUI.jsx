@@ -2,7 +2,7 @@ const React = require('react');
 
 import TextField from 'material-ui/TextField';
 
-const StdTextFieldMUI = React.createClass({
+const TextFieldMUI = React.createClass({
 	render: function() {
 		var p = this.props;
 		var fs = p.formState;
@@ -28,4 +28,4 @@ const StdTextFieldMUI = React.createClass({
 	);}
 });
 
-module.exports = StdTextFieldMUI;
+module.exports = TextFieldMUI;

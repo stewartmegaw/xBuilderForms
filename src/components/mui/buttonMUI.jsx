@@ -3,7 +3,7 @@ const React = require('react');
 import FlatButton from 'material-ui/FlatButton';
 import RaisedButton from 'material-ui/RaisedButton';
 
-const StdButtonMUI = React.createClass({
+const ButtonMUI = React.createClass({
 	render: function() {
 		var p = this.props;
 
@@ -34,4 +34,4 @@ const StdButtonMUI = React.createClass({
 	);}
 });
 
-module.exports = StdButtonMUI;
+module.exports = ButtonMUI;

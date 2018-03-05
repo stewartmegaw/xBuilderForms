@@ -1,7 +1,7 @@
 const React = require('react');
 
 
-var Component = require('xbuilder-forms/wrappers/component');
+var Component = require('../wrappers/component');
 
 import 'whatwg-fetch';
 
@@ -12,9 +12,10 @@ import MenuItem from 'material-ui/MenuItem';
 import SearchSVG from 'material-ui/svg-icons/action/search';
 import AddSVG from 'material-ui/svg-icons/content/add';
 
-const tagsStyle = require('xbuilder-forms/style/tags.css');
+const tagsStyle = require('../style/tags.css');
 
-const Loading = require('xbuilder-core/helpers/loading');
+console.log("TODO: Loading needs implemented");
+const Loading = null;//require('xbuilder-core/helpers/loading');
 
 const StdTagSuggest = Component(React.createClass({
 	getInitialState:function() {
