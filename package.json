@@ -1,6 +1,6 @@
 {
   "name": "xbuilder-forms",
-  "version": "0.1.37",
+  "version": "0.1.38",
   "description": "Quickly add beautiful and powerful forms to your application",
   "scripts": {
     "test": "jest --verbose",
@@ -11,7 +11,7 @@
     "build": "webpack --config webpack.config.js --env.prod=1",
     "build:progress": "webpack --config webpack.config.js --progress --env.prod=1",
     "build:dev": "webpack --config webpack.config.js --watch --progress --env.prod=0",
-    "prepublish": "npm run build"
+    "prepublishOnly": "npm run build"
   },
   "jest": {
     "setupFiles": [
