@@ -3,35 +3,32 @@ const React = require('react');
 import FlatButton from 'material-ui/FlatButton';
 import RaisedButton from 'material-ui/RaisedButton';
 
-const ButtonMUI = React.createClass({
-	render: function() {
-		var p = this.props;
-
-		var muiProps = Object.assign({},p.muiProps);
+const ButtonMUI = (props) => {
+		var muiProps = Object.assign({},props.muiProps);
 		if(!muiProps.hasOwnProperty('label'))
-			muiProps.label = p.field.label;
+			muiProps.label = props.field.label;
 
-		muiProps.onClick = p.events.onClick;
+		muiProps.onClick = props.events.onClick;
 
 		return (
 			<span>
-				{p.muiButtonType == 'FlatButton' ?
+				{props.muiButtonType == 'FlatButton' ?
 					<FlatButton
-						{...p.stdProps}
+						{...props.stdProps}
 					 	{...muiProps}
 					/>
 			 	:
 			 		<RaisedButton
-						{...p.stdProps}
+						{...props.stdProps}
 					 	{...muiProps}
 		 			/>
 			 	}
-			 	{p.disabled ? null :
-				 	<input type="hidden" name={p.stdProps.name} value="1"/>
+			 	{props.disabled ? null :
+				 	<input type="hidden" name={props.stdProps.name} value="1"/>
 				}
 			</span>
 				  
-	);}
-});
+	);
+}
 
 module.exports = ButtonMUI;

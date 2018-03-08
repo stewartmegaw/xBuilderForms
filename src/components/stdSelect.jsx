@@ -1,14 +1,17 @@
 const React = require("react");
 
-const Component = require("../wrappers/component");
+import Component from "./wrappers/component";
 
-const StdSelect = Component(
-  React.createClass({
-    getInitialState() {
-      return {
+module.exports = Component(
+  class StdSelect extends React.Component {
+    constructor(props) {
+      super(props);
+      this.getValue = this.getValue.bind(this);
+      this.state = {
         stdSelectMUI: null
       };
-    },
+    }
+
     componentWillMount() {
       let _this = this;
 
@@ -18,38 +21,36 @@ const StdSelect = Component(
           _this.setState({ stdSelectMUI: component });
         });
       }
-    },
-    getValue: function() {
+    }
+
+    getValue() {
       let p = this.props;
-      let fs = p.formState;
-      let s = this.state;
 
       let valuePresent =
-        fs.data[p.name] !== null &&
-        fs.data.hasOwnProperty(p.name) &&
-        fs.data[p.name] !== "undefined";
+        p.value !== null &&
+        p.value !== "undefined";
 
-      if (p.type === "multiSelect") {
+      if (p.field.type === "multiSelect") {
         if (!valuePresent) {
           return [];
         }
-        if (s.options.valueCast === "string") {
+        if (p.field.options.valueCast === "string") {
           let vals = [];
-          fs.data[p.name].map(v => {
+          p.value.map(v => {
             vals.push(v.toString());
           });
           return vals;
         }
-        return fs.data[p.name];
+        return p.value;
       }
 
-      return valuePresent && s.options.valueCast === "string"
-        ? fs.data[p.name].toString()
-        : fs.data[p.name];
-    },
-    render: function() {
+      return valuePresent && p.field.options.valueCast === "string"
+        ? p.value.toString()
+        : p.value;
+    }
+
+    render() {
       let p = this.props;
-      let fs = p.formState;
       let s = this.state;
 
       let value = this.getValue();
@@ -60,7 +61,7 @@ const StdSelect = Component(
         style: p.style || {},
         className: p.className,
         value: value,
-        multiple: p.type === "multiSelect" ? true : false
+        multiple: p.field.type === "multiSelect" ? true : false
       };
 
       if (!p.muiProps) {
@@ -69,21 +70,21 @@ const StdSelect = Component(
         };
         return (
           <select {...stdProps}>
-            {Object.keys(s.options.valueOptions.values).map(function(v, i) {
+            {p.field.options.valueOptions ? Object.keys(p.field.options.valueOptions.values).map(function(v, i) {
               return (
                 <option
                   checked={
                     stdProps.multiple
-                      ? value.indexOf(s.options.valueOptions.values[i]) > -1
+                      ? value.indexOf(p.field.options.valueOptions.values[i]) > -1
                       : false
                   }
-                  value={s.options.valueOptions.values[i]}
+                  value={p.field.options.valueOptions.values[i]}
                   key={i}
                 >
-                  {s.options.valueOptions.text[i]}
+                  {p.field.options.valueOptions.text[i]}
                 </option>
               );
-            })}
+            }):null}
           </select>
         );
       }
@@ -95,16 +96,13 @@ const StdSelect = Component(
       return (
         <s.stdSelectMUI
           state={s}
-          formState={fs}
           field={p.field}
           onChange={(v, e) => this.onChange(v, e)}
           stdProps={stdProps}
           muiProps={p.muiProps}
-          getValue={this.getValue}
+          error_msgs={this.props.error_msgs}
         />
       );
     }
-  })
-);
-
-module.exports = StdSelect;
+  }
+)

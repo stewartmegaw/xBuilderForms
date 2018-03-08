@@ -1,6 +1,6 @@
 const React = require('react');
 
-var Component = require('../wrappers/component');
+var Component = require('./wrappers/component');
 
 import IconButton from 'material-ui/IconButton';
 import IconMenu from 'material-ui/IconMenu';

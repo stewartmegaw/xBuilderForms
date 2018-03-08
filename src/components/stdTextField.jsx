@@ -1,70 +1,76 @@
-const React = require('react');
+const React = require("react");
 
-var Component = require('../wrappers/component');
+import Component from "./wrappers/component";
 
-const StdTextField = Component(React.createClass({
-	getInitialState(){
-		return {
-			stdTextFieldMUI:null
-		}
-	},
-	componentWillMount() {
-		var _this = this;
+module.exports = Component(
+  class StdTextField extends React.Component {
+    constructor(props) {
+      super(props);
 
-		if(this.props.muiProps)
-		{	
-			require.ensure([], (require) => {
-	              var component = require('./mui/textFieldMUI');
-	              _this.setState({stdTextFieldMUI:component});
-	        });
-		}
-	},
-	render: function() {
-		var p = this.props;
-		var fs = p.formState;
-		var s = this.state;
+      this.state = {
+        stdTextFieldMUI: null
+      };
+    }
 
-		var commonProps = {
-			id:p.id,
-			name: p.name,
-			style:p.style || {},
-			className:p.className,
-	        ref:p.name,
-	        value:fs.data[p.name] || "",
-	        type: p.type || "text"
-		}
+    componentWillMount() {
+      var _this = this;
 
-		if(!p.muiProps)
-		{
-			// Only allow extra props that are defined below
-			var extraProps = {};
-			extraProps.onChange = (e)=>{this.onChange(e.target.value, e)};
-			extraProps.onBlur = p.events.onBlur;
-			extraProps.placeholder = p.placeholder || p.field.label;
+      if (this.props.muiProps) {
+        require.ensure([], require => {
+          var component = require("./mui/textFieldMUI");
+          _this.setState({ stdTextFieldMUI: component });
+        });
+      }
+    }
 
-			if(fs.error_msgs[p.name])
-			{
-				if(p.errorClass)
-					extraProps.className = [commonProps.className, p.errorClass].join(' ');
-			}
+    render() {
+      var p = this.props;
+      var s = this.state;
 
-			return commonProps.type == "textarea" ?  <textarea {...commonProps} {...extraProps}/> : <input {...commonProps} {...extraProps}/>
-		}
+      var commonProps = {
+        id: p.id,
+        name: p.name,
+        style: p.style || {},
+        className: p.className,
+        value: p.value,
+        type: p.field.type || "text"
+      };
 
-		if(!s.stdTextFieldMUI)
-			return null;
+      if (!p.muiProps) {
+        // Only allow extra props that are defined below
+        var extraProps = {};
+        extraProps.onChange = e => {
+          p.onChange(e.target.value, e);
+        };
+        extraProps.onBlur = p.events.onBlur;
+        extraProps.placeholder = p.placeholder || p.field.label;
 
+        if (p.error_msgs) {
+          if (p.errorClass)
+            extraProps.className = [commonProps.className, p.errorClass].join(
+              " "
+            );
+        }
 
-		return (
-			<s.stdTextFieldMUI
-				formState={fs}
-				field={p.field}
-				onChange={(value,e)=>this.onChange(value,e)}
-				commonProps={commonProps}
-				muiProps={p.muiProps}
-				events={p.events}
-			/>
-	);}
-}));
+        return commonProps.type == "textarea" ? (
+          <textarea {...commonProps} {...extraProps} />
+        ) : (
+          <input {...commonProps} {...extraProps} />
+        );
+      }
 
-module.exports = StdTextField;
+      if (!s.stdTextFieldMUI) return null;
+
+      return (
+        <s.stdTextFieldMUI
+          field={p.field}
+          onChange={(value, e) => p.onChange(value, e)}
+          commonProps={commonProps}
+          muiProps={p.muiProps}
+          events={p.events}
+          error_msgs={p.error_msgs}
+        />
+      );
+    }
+  }
+);

@@ -9,77 +9,71 @@ import CloseSVG from "material-ui/svg-icons/navigation/close";
 
 require("date-util");
 
-const DatePickerMUI = React.createClass({
-  commonDateFormat(d) {
+const DatePickerMUI = props => {
+  function commonDateFormat(d) {
     return d.format("ddd, mmm dS yy");
-  },
-  render() {
-    let p = this.props;
-    let fs = p.formState;
-
-    let muiProps = Object.assign({}, p.muiProps);
-    if (!muiProps.hasOwnProperty("floatingLabelText")) {
-      muiProps.floatingLabelText = p.field.label;
-    }
-    if (!muiProps.hasOwnProperty("formatDate")) {
-      muiProps.formatDate = this.commonDateFormat;
-    }
-    if (!muiProps.hasOwnProperty("mode")) {
-      muiProps.mode = "landscape";
-    }
-    if (!muiProps.hasOwnProperty("minDate")) {
-      // Set to today -300 years (else its mui default is today-100 years)
-      let minDate = new Date();
-      minDate.setHours(0, 0, 0, 0); // No time
-      minDate = minDate.getTime() - 1000 * 60 * 60 * 24 * 365 * 300;
-      minDate = new Date(minDate);
-      muiProps.minDate = minDate;
-    }
-
-    return (
-      <span style={{ position: "relative", display: "inline-block" }}>
-        {/* The span wrapper is needed to place the CloseSVG button in the correct place */}
-        {/* value property should be a Date object or null */}
-        <DatePicker
-          {...muiProps}
-          {...p.stdProps}
-          value={p.stdProps.value || null}
-          autoOk={true}
-          ref={p.name}
-          onChange={(event, date) => {
-            p.onChange(
-              Object.prototype.toString.call(date) === "[object Date]"
-                ? date.getTime()
-                : null,
-              event
-            );
-          }}
-          errorText={
-            fs.error_msgs[p.field.name] ? fs.error_msgs[p.field.name][0] : null
-          }
-          data-ignored={true}
-          onFocus={p.events.onFocus}
-        />
-        {fs.data[p.field.name] ? (
-          <CloseSVG
-            style={{
-              cursor: "pointer",
-              position: "absolute",
-              right: 10,
-              bottom: 10,
-              width: 20,
-              height: 20
-            }}
-            onClick={() => {
-              let s = Object.assign({}, fs);
-              s.data[p.field.name] = null;
-              p.updated(s);
-            }}
-          />
-        ) : null}
-      </span>
-    );
   }
-});
+
+  let muiProps = Object.assign({}, props.muiProps);
+  if (!muiProps.hasOwnProperty("floatingLabelText")) {
+    muiProps.floatingLabelText = props.field.label;
+  }
+  if (!muiProps.hasOwnProperty("formatDate")) {
+    muiProps.formatDate = commonDateFormat;
+  }
+  if (!muiProps.hasOwnProperty("mode")) {
+    muiProps.mode = "landscape";
+  }
+  if (!muiProps.hasOwnProperty("minDate")) {
+    // Set to today -300 years (else its mui default is today-100 years)
+    let minDate = new Date();
+    minDate.setHours(0, 0, 0, 0); // No time
+    minDate = minDate.getTime() - 1000 * 60 * 60 * 24 * 365 * 300;
+    minDate = new Date(minDate);
+    muiProps.minDate = minDate;
+  }
+
+  return (
+    <span style={{ position: "relative", display: "inline-block" }}>
+      {/* The span wrapper is needed to place the CloseSVG button in the correct place */}
+      {/* value property should be a Date object or null */}
+      <DatePicker
+        {...muiProps}
+        {...props.stdProps}
+        value={props.stdProps.value || null}
+        autoOk={true}
+        onChange={(event, date) => {
+          props.onChange(
+            Object.prototype.toString.call(date) === "[object Date]"
+              ? date.getTime()
+              : null,
+            event
+          );
+        }}
+        errorText={
+          props.error_msgs ? props.error_msgs[0] : null
+        }
+        data-ignored={true}
+        onFocus={props.events.onFocus}
+      />
+      {props.stdProps.value ? (
+        <CloseSVG
+          style={{
+            cursor: "pointer",
+            position: "absolute",
+            right: 10,
+            bottom: 10,
+            width: 20,
+            height: 20
+          }}
+          onClick={(event) => {
+            let s = Object.assign({}, fs);
+            props.onChange(null, event);
+          }}
+        />
+      ) : null}
+    </span>
+  );
+};
 
 module.exports = DatePickerMUI;

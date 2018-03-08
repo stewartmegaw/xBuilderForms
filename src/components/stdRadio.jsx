@@ -3,7 +3,7 @@ const React = require('react');
 import {RadioButton, RadioButtonGroup} from 'material-ui/RadioButton';
 import MenuItem from 'material-ui/MenuItem';
 
-var Component = require('../wrappers/component');
+var Component = require('./wrappers/component');
 var validate = require("validate.js");
 
 var style = require('../style/radio.css');

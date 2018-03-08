@@ -3,51 +3,47 @@ const React = require('react');
 import SelectField from 'material-ui/SelectField';
 import MenuItem from 'material-ui/MenuItem';
 
-const SelectMUI = React.createClass({
-	render: function() {
-		var p = this.props;
-		var fs = p.formState;
-		var s = this.props.state;
+const SelectMUI = (props) => { 
 
-		var muiProps = Object.assign({},p.muiProps);
+		var s = props.state;
+
+		var muiProps = Object.assign({},props.muiProps);
 		if(!muiProps.hasOwnProperty('fullWidth'))
 			muiProps.fullWidth = true;
         if(!muiProps.hasOwnProperty('floatingLabelText'))
-            muiProps.floatingLabelText = p.field.label;
+            muiProps.floatingLabelText = props.field.label;
 
-
-		var _value = this.props.getValue();
 
 		return (
 			<span>
 				<SelectField
 					{...muiProps}
-					{...p.stdProps}
-					onChange={(event,index,value)=>p.onChange(value, event)}
-					errorText={fs.error_msgs[p.stdProps.name] ? fs.error_msgs[p.stdProps.name][0] : null}
+					{...props.stdProps}
+					onChange={(event,index,value)=>props.onChange(value, event)}
+					errorText={props.error_msgs ? props.error_msgs[0] : null}
 				>
-					{Object.keys(s.options.valueOptions.values).map(function(v,i) {
-						return <MenuItem
-							insetChildren={p.stdProps.multiple ? true : false}
-					        checked={p.stdProps.multiple ? _value.indexOf(s.options.valueOptions.values[i]) > -1 : false}
-							value={s.options.valueOptions.values[i]}
-							primaryText={s.options.valueOptions.text[i]}
+					{props.field.options.valueOptions ? Object.keys(props.field.options.valueOptions.values).map(function(v,i) {
+            return <MenuItem
+							insetChildren={props.stdProps.multiple ? true : false}
+					        checked={props.stdProps.multiple ? props.stdProps.value.indexOf(s.options.valueOptions.values[i]) > -1 : false}
+							value={props.field.options.valueOptions.values[i]}
+							primaryText={props.field.options.valueOptions.text[i]}
 							key={i}/>
-					})}
+					}) : null}
 			    </SelectField>
-			    {p.stdProps.multiple ?
+			    {props.stdProps.multiple ?
 			    	<span>
-			    		{s.options.valueOptions.values.map((v, i)=>{
-			    			return _value.indexOf(s.options.valueOptions.values[i]) == -1 ? null : (
-			    				<input type="hidden" name={p.stdProps.name+"[]"} value={s.options.valueOptions.values[i]} key={i} />
+			    		{props.field.options.valueOptions ? props.field.options.valueOptions.values.map((v, i)=>{
+			    			return props.stdProps.value.indexOf(props.field.options.valueOptions.values[i]) == -1 ? null : (
+			    				<input type="hidden" name={props.stdProps.name+"[]"} value={props.field.options.valueOptions.values[i]} key={i} />
 		    				)
-			    		})}
+			    		}) : null}
 			    	</span>
 		    	:
-			    	<input type="hidden" name={p.stdProps.name} value={_value} />
+			    	<input type="hidden" name={props.stdProps.name} value={props.stdProps.value} />
 			    }
 		    </span>				  
-	);}
-});
+	);
+}
 
 module.exports = SelectMUI;

@@ -2,7 +2,7 @@ import React from 'react';
 import RaisedButton from 'material-ui/RaisedButton';
 import {Card, CardActions, CardTitle} from 'material-ui/Card';
 
-var Component = require('../wrappers/component');
+var Component = require('./wrappers/component');
 
 var DynamicJson = require('./stdDynamicJson');
 

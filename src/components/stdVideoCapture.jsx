@@ -1,7 +1,7 @@
 const React = require('react');
 
 
-var Component = require('../wrappers/component');
+var Component = require('./wrappers/component');
 
 const VideoRecorder = require('../templates/videoRecorder');
 const VideoPlayer = require('../templates/videoPlayer');

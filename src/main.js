@@ -1,3 +1,3 @@
-import FormBuilder from "../src/wrappers/formBuilder";
+import FormBuilder from "../src/components/wrappers/formBuilder";
 
 module.exports = FormBuilder;

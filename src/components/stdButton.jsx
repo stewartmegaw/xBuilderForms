@@ -1,60 +1,59 @@
-const React = require('react');
+const React = require("react");
 
-var Component = require('../wrappers/component');
+import Component from "./wrappers/component";
 
-const StdButton = Component(React.createClass({
-	getInitialState(){
-		return {
-			stdButtonMUI:null
-		}
-	},
-	componentWillMount() {
-		var _this = this;
+module.exports = Component(
+  class StdButton extends React.Component {
+    constructor(props) {
+      super(props);
 
-		if(this.props.muiProps)
-		{	
-			require.ensure([], (require) => {
-	              var component = require('./mui/buttonMUI');
-	              _this.setState({stdButtonMUI:component});
-	        });
-		}
-	},
-	render: function() {
-		var p = this.props;
-		var s = this.state;
+      this.state = {
+        stdButtonMUI: null
+      };
+    }
 
-		var stdProps = {
-			id:p.id,
-			name: p.name,
-	        type: p.type,
-			style:p.style || {},
-			className:p.className,
-	        ref:p.name,
-	        value:1,
-	        disabled:p.disabled || false,
-	        onClick:p.events.onClick 
-		}
+    componentWillMount() {
+      var _this = this;
 
-		if(!p.muiProps)
-		{
-			var extraProps = {};
-			extraProps.onClick = p.events.onClick;
-			return <button {...stdProps}>{p.field.label}</button>
-		}
+      if (this.props.muiProps) {
+        import("./mui/buttonMUI").then(myMod => {
+          _this.setState({ stdButtonMUI: myMod });
+        });
+      }
+    }
 
-		if(!s.stdButtonMUI)
-			return null;
+    render() {
+      var p = this.props;
+      var s = this.state;
 
-		return (
-			<s.stdButtonMUI
-				field={p.field}
-				stdProps={stdProps}
-				muiProps={p.muiProps}
-				muiButtonType={p.muiButtonType}
-				events={p.events}
-			/>
-				  
-	);}
-}));
+      var stdProps = {
+        id: p.id,
+        name: p.name,
+        type: p.field.type,
+        style: p.style || {},
+        className: p.className,
+        value: 1,
+        disabled: p.disabled || false,
+        onClick: p.events.onClick
+      };
 
-module.exports = StdButton;
+      if (!p.muiProps) {
+        var extraProps = {};
+        extraProps.onClick = p.events.onClick;
+        return <button {...stdProps}>{p.field.label}</button>;
+      }
+
+      if (!s.stdButtonMUI) return null;
+
+      return (
+        <s.stdButtonMUI
+          field={p.field}
+          stdProps={stdProps}
+          muiProps={p.muiProps}
+          muiButtonType={p.muiButtonType}
+          events={p.events}
+        />
+      );
+    }
+  }
+);
