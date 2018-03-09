@@ -1,9 +1,22 @@
-const React = require("react");
+// @flow
+
+import React from "react";
+import type { Node } from "react";
 
 import Component from "./wrappers/component";
 
+type Props = {
+  id: string,
+  name: string,
+  className: string
+};
+
+type State = {
+  stdButtonMUI: Node
+};
+
 module.exports = Component(
-  class StdButton extends React.Component {
+  class StdButton extends React.Component<Props, State> {
     constructor(props) {
       super(props);
 
@@ -13,9 +26,9 @@ module.exports = Component(
     }
 
     componentWillMount() {
-      var _this = this;
+      let _this = this;
 
-      if (this.props.muiProps) {
+      if (this.props.manualProperties.muiProps) {
         import("./mui/buttonMUI").then(myMod => {
           _this.setState({ stdButtonMUI: myMod });
         });
@@ -23,35 +36,30 @@ module.exports = Component(
     }
 
     render() {
-      var p = this.props;
-      var s = this.state;
+      let p = this.props;
+      let s = this.state;
 
-      var stdProps = {
-        id: p.id,
-        name: p.name,
-        type: p.field.type,
+      let commonProps = Object.assign({}, p.stdProps, { 
+        type: p.type,
         style: p.style || {},
         className: p.className,
         value: 1,
         disabled: p.disabled || false,
         onClick: p.events.onClick
-      };
+      });
 
-      if (!p.muiProps) {
-        var extraProps = {};
-        extraProps.onClick = p.events.onClick;
-        return <button {...stdProps}>{p.field.label}</button>;
+      if (!p.manualProperties.muiProps) {
+        return <button {...commonProps}>{p.label}</button>;
       }
 
-      if (!s.stdButtonMUI) return null;
+      if (!s.stdButtonMUI) {
+        return null;
+      }
 
       return (
         <s.stdButtonMUI
-          field={p.field}
-          stdProps={stdProps}
-          muiProps={p.muiProps}
-          muiButtonType={p.muiButtonType}
-          events={p.events}
+          {...this.props}
+          commonProps={commonProps}
         />
       );
     }

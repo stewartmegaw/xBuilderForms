@@ -1,49 +1,74 @@
-const React = require('react');
+// @flow
 
-import SelectField from 'material-ui/SelectField';
-import MenuItem from 'material-ui/MenuItem';
+import React, { Fragment } from "react";
 
-const SelectMUI = (props) => { 
+import SelectField from "material-ui/SelectField";
+import MenuItem from "material-ui/MenuItem";
+import type { MuiProps } from "./types";
+import type { ComponentProps } from "../types";
 
-		var s = props.state;
+const SelectMUI = (props: ComponentProps & MuiProps) => {
+  let options = props.options;
 
-		var muiProps = Object.assign({},props.muiProps);
-		if(!muiProps.hasOwnProperty('fullWidth'))
-			muiProps.fullWidth = true;
-        if(!muiProps.hasOwnProperty('floatingLabelText'))
-            muiProps.floatingLabelText = props.field.label;
-
-
-		return (
-			<span>
-				<SelectField
-					{...muiProps}
-					{...props.stdProps}
-					onChange={(event,index,value)=>props.onChange(value, event)}
-					errorText={props.error_msgs ? props.error_msgs[0] : null}
-				>
-					{props.field.options.valueOptions ? Object.keys(props.field.options.valueOptions.values).map(function(v,i) {
-            return <MenuItem
-							insetChildren={props.stdProps.multiple ? true : false}
-					        checked={props.stdProps.multiple ? props.stdProps.value.indexOf(s.options.valueOptions.values[i]) > -1 : false}
-							value={props.field.options.valueOptions.values[i]}
-							primaryText={props.field.options.valueOptions.text[i]}
-							key={i}/>
-					}) : null}
-			    </SelectField>
-			    {props.stdProps.multiple ?
-			    	<span>
-			    		{props.field.options.valueOptions ? props.field.options.valueOptions.values.map((v, i)=>{
-			    			return props.stdProps.value.indexOf(props.field.options.valueOptions.values[i]) == -1 ? null : (
-			    				<input type="hidden" name={props.stdProps.name+"[]"} value={props.field.options.valueOptions.values[i]} key={i} />
-		    				)
-			    		}) : null}
-			    	</span>
-		    	:
-			    	<input type="hidden" name={props.stdProps.name} value={props.stdProps.value} />
-			    }
-		    </span>				  
-	);
-}
+  return (
+    <span>
+      <SelectField
+        fullWidth={props.manualProperties.muiProps.fullWidth === false ? false : true}
+        floatingLabelText={props.manualProperties.muiProps.floatingLabelText || props.label}
+        {...props.commonProps}
+        onChange={(event, index, value) => props.onChange(value, event)}
+        errorText={props.error_msgs ? props.error_msgs[0] : null}
+      >
+        {options.valueOptions ? (
+          <Fragment>
+            {options.valueOptions.values.map((v, i) => (
+              <MenuItem
+                insetChildren={props.commonProps.multiple ? true : false}
+                checked={
+                  props.commonProps.multiple
+                    ? props.commonProps.value.indexOf(
+                        options.valueOptions.values[i]
+                      ) > -1
+                    : false
+                }
+                value={options.valueOptions.values[i]}
+                primaryText={options.valueOptions.text[i]}
+                key={i}
+              />
+            ))}
+          </Fragment>
+        ) : null}
+      </SelectField>
+      {props.commonProps.multiple ? (
+        <span>
+          {options.valueOptions ? (
+            <Fragment>
+              {options.valueOptions.values.map((v, i) => (
+                <Fragment>
+                  {props.commonProps.value.indexOf(
+                    options.valueOptions.values[i]
+                  ) === -1 ? null : (
+                    <input
+                      type="hidden"
+                      name={props.commonProps.name + "[]"}
+                      value={options.valueOptions.values[i]}
+                      key={i}
+                    />
+                  )}
+                </Fragment>
+              ))}
+            </Fragment>
+          ) : null}
+        </span>
+      ) : (
+        <input
+          type="hidden"
+          name={props.commonProps.name}
+          value={props.commonProps.value}
+        />
+      )}
+    </span>
+  );
+};
 
 module.exports = SelectMUI;

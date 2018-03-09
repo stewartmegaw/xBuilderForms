@@ -1,34 +1,27 @@
-const React = require('react');
+// @flow
 
-import FlatButton from 'material-ui/FlatButton';
-import RaisedButton from 'material-ui/RaisedButton';
+import React, { Fragment } from "react";
 
-const ButtonMUI = (props) => {
-		var muiProps = Object.assign({},props.muiProps);
-		if(!muiProps.hasOwnProperty('label'))
-			muiProps.label = props.field.label;
+import FlatButton from "material-ui/FlatButton";
+import RaisedButton from "material-ui/RaisedButton";
+import type { MuiProps } from "./types";
+import type { ComponentProps } from "../types";
 
-		muiProps.onClick = props.events.onClick;
+const ButtonMUI = (props: ComponentProps & MuiProps) => {
+  let muiProps = Object.assign({}, props.manualProperties.muiProps);
+  if (!muiProps.label) {
+    muiProps.label = props.label;
+  }
 
-		return (
-			<span>
-				{props.muiButtonType == 'FlatButton' ?
-					<FlatButton
-						{...props.stdProps}
-					 	{...muiProps}
-					/>
-			 	:
-			 		<RaisedButton
-						{...props.stdProps}
-					 	{...muiProps}
-		 			/>
-			 	}
-			 	{props.disabled ? null :
-				 	<input type="hidden" name={props.stdProps.name} value="1"/>
-				}
-			</span>
-				  
-	);
-}
+  return (
+    <Fragment>
+      {props.muiButtonType === "FlatButton" ? (
+        <FlatButton {...props.commonProps} {...muiProps} />
+      ) : (
+        <RaisedButton {...props.commonProps} {...muiProps} />
+      )}
+    </Fragment>
+  );
+};
 
 module.exports = ButtonMUI;

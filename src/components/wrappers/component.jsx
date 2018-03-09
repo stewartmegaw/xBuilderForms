@@ -1,4 +1,7 @@
-const React = require("react");
+// @flow
+
+import React from "react";
+import type { ComponentType } from "react";
 import formComponentsActions from "../../actions/formComponentsActions";
 import formComponentsStore from "../../stores/formComponentsStore";
 /*
@@ -15,13 +18,36 @@ Use this to:
 2) Manipulate the props
 3) Abstract the state
 */
-export default function(WrappedComponent) {
-  let Wrapped = class extends React.Component {
-    constructor(props) {
+
+type Props = {
+  id: string,
+  name: string,
+  form: {name:string, constraints:{}, fields: Array<{}>},
+  field: { name: string },
+  events:{onChangeFinished: Function},
+  onChangeFinished: Function
+};
+
+type State = {
+  value: mixed,
+  error_msgs: mixed
+};
+
+
+export default function HOC<IP:*, OP:Props>(
+  WrappedComponent: ComponentType<IP>
+): ComponentType<OP> {
+  return class extends React.Component<OP, State> {
+    onChange: Function;
+    onFormComponentsStoreUpdated: Function;
+
+    constructor(props: OP) {
       super(props);
       this.onChange = this.onChange.bind(this);
-      this.onFormComponentsStoreUpdated = this.onFormComponentsStoreUpdated.bind(this);
-      this.state = {value:"", error_msgs: null};
+      this.onFormComponentsStoreUpdated = this.onFormComponentsStoreUpdated.bind(
+        this
+      );
+      this.state = { value: "", error_msgs: null };
     }
 
     componentWillMount() {
@@ -29,19 +55,23 @@ export default function(WrappedComponent) {
     }
 
     componentWillUnmount() {
-      formComponentsStore.removeChangeListener(this.onFormComponentsStoreUpdated);
+      formComponentsStore.removeChangeListener(
+        this.onFormComponentsStoreUpdated
+      );
     }
 
     onFormComponentsStoreUpdated() {
       // Set the data and error_msgs
       let store = formComponentsStore.getStore();
-      let fieldName = this.props.field.name;
-      this.setState({value: store.data[fieldName], error_msgs: store.error_msgs[fieldName]});
+      let fieldName = this.props.stdProps.name;
+      this.setState({
+        value: store.data[fieldName],
+        error_msgs: store.error_msgs[fieldName]
+      });
     }
 
-
     // Generic field validation onChange
-    onChange(value, event) {
+    onChange(value: mixed, event: mixed) {
       // OLD code for checking onChange override
       // if (super.onChange) {
       //   super.onChange(value, () => {
@@ -50,9 +80,9 @@ export default function(WrappedComponent) {
       //   });
       //   return;
       // }
-      
+
       let store = formComponentsStore.getStore();
-      let fieldName = this.props.field.name;
+      let fieldName = this.props.stdProps.name;
       let data = Object.assign({}, store.data);
       data[fieldName] = value;
 
@@ -67,12 +97,17 @@ export default function(WrappedComponent) {
       if (all_error_msgs[fieldName]) {
         // Some validations rely on other fields values so we must pass
         // in all other field values
-        let form = document.querySelector("form#" + "form_" + this.props.form.name);
+        let form = document.querySelector(
+          "form#" + "form_" + this.props.formScope.form.name
+        );
         let formValues = validate.collectFormValues(form, { trim: true });
-        let errors = validate(formValues, this.props.form.constraints);
+        let errors = validate(formValues, this.props.formScope.form.constraints);
         // Update errors but only for this field
-        if (errors) all_error_msgs = errors;
-        else delete all_error_msgs[fieldName];
+        if (errors) {
+          all_error_msgs = errors;
+        } else {
+          delete all_error_msgs[fieldName];
+        }
       }
 
       // if(p.updateNeighbours)
@@ -80,48 +115,51 @@ export default function(WrappedComponent) {
 
       formComponentsActions.valueChanged(data, all_error_msgs);
       // p.updated(_s, () => {
-      if (this.props.events && this.props.events.onChangeFinished)
+      if (this.props.events && this.props.events.onChangeFinished) {
         this.props.events.onChangeFinished(value, event);
+      }
 
       // Global
-      if (this.props.onChangeFinished) {
-        this.props.onChangeFinished(event);
+      if (this.props.formScope.onChangeFinished) {
+        this.props.formScope.onChangeFinished(event);
       }
       // });s
     }
 
-    render() {
-      let p = this.props;
-
+    getLinkedFields() {
+      let _this = this;
       // Check for linked fields
       let linkedFields = [];
       // TODO Remove p.state after upgrade
-      this.props.form.fields.map(function(_field) {
-        if (_field.options && _field.options.linkedTo == p.field.name)
+      this.props.formScope.form.fields.map(function(_field) {
+        if (_field.options && _field.options.linkedTo === _this.props.stdProps.name) {
           linkedFields.push(_field);
+        }
       });
+      return linkedFields;
+    }
 
-      let commonProps = {
-        id: p.form.name + p.field.name,
-        name: p.field.name,
-        linkedFields: linkedFields,
-        value: this.state.value,
-        error_msgs: this.state.error_msgs
+    render() {
+      // Update the passed stdProps object
+      let passedProps = Object.assign({}, this.props);
+      passedProps.stdProps = Object.assign({}, this.props.stdProps, {value: this.state.value});
+
+      // Remove form scoped props which are only needed in this HOC
+      delete passedProps.formScope;
+
+      let extraProps = {
+        error_msgs: this.state.error_msgs,
+        disabled: this.state.disabled,
+        getLinkedFields: this.getLinkedFields,
+        onChange: this.onChange
       };
 
       /* TODO: setChild needs updated */
       return (
-        <WrappedComponent
-          {...p}
-          {...commonProps}
-          setChild={child => (this.child = child)}
-          onChange={this.onChange}
-        />
+        <WrappedComponent {...passedProps} {...extraProps} />
       );
     }
   };
-
-  return Wrapped;
 }
 
 /*
@@ -142,45 +180,6 @@ Use this to:
 //         return ss;
 //       }
 
-//       // Generic field validation onChange
-//       onChange(value, event) {
-//         if (super.onChange) {
-//           super.onChange(value, () => {
-//             if (p.events && p.events.onChangeFinished)
-//               p.events.onChangeFinished(value);
-//           });
-//           return;
-//         }
-
-//         let p = this.props;
-//         let s = p.formState || p.state;
-
-//         let _s = Object.assign({}, s);
-//         _s.data[p.name] = value;
-
-//         // There is currently an error so validate onChange
-//         if (s.error_msgs[p.name]) {
-//           // Some validations rely on other fields values so we must pass
-//           // in all other field values
-//           let form = document.querySelector("form#" + "form_" + p.formName);
-//           let formValues = validate.collectFormValues(form, { trim: true });
-//           let errors = validate(formValues, s.constraints);
-//           // Update errors but only for this field
-//           if (errors) _s.error_msgs = errors;
-//           else delete _s.error_msgs[p.name];
-//         }
-
-//         // if(p.updateNeighbours)
-//         //  _s = this.updateNeighbours(value, _s);
-
-//         p.updated(_s, () => {
-//           if (p.events && p.events.onChangeFinished)
-//             p.events.onChangeFinished(value, event);
-
-//           // Global
-//           if (p.onChangeFinished) p.onChangeFinished(event);
-//         });
-//       }
 
 //       // Legacy code from weestay. Probably still works
 //       // and will be useful in future

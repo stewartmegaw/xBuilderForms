@@ -13,62 +13,57 @@ module.exports = Component(
     }
 
     componentWillMount() {
-      var _this = this;
+      let _this = this;
 
-      if (this.props.muiProps) {
-        require.ensure([], require => {
-          var component = require("./mui/textFieldMUI");
+      if (this.props.manualProperties.muiProps) {
+        import("./mui/textFieldMUI").then(component => {
           _this.setState({ stdTextFieldMUI: component });
         });
       }
     }
 
     render() {
-      var p = this.props;
-      var s = this.state;
+      let p = this.props;
+      let s = this.state;
 
-      var commonProps = {
-        id: p.id,
-        name: p.name,
+      let commonProps = Object.assign({}, p.stdProps, {
         style: p.style || {},
         className: p.className,
-        value: p.value,
-        type: p.field.type || "text"
-      };
-
-      if (!p.muiProps) {
-        // Only allow extra props that are defined below
-        var extraProps = {};
-        extraProps.onChange = e => {
+        value: p.stdProps.value || "",
+        onChange: e => {
           p.onChange(e.target.value, e);
-        };
-        extraProps.onBlur = p.events.onBlur;
-        extraProps.placeholder = p.placeholder || p.field.label;
+        },
+        onBlur: p.events.onBlur
+      });
+
+      if (!p.manualProperties.muiProps) {
+        // Only allow extra props that are defined below
+        let extraProps = {};
+        extraProps.placeholder = p.placeholder || p.label;
 
         if (p.error_msgs) {
-          if (p.errorClass)
+          if (p.errorClass) {
             extraProps.className = [commonProps.className, p.errorClass].join(
               " "
             );
+          }
         }
 
-        return commonProps.type == "textarea" ? (
+        return commonProps.type === "textarea" ? (
           <textarea {...commonProps} {...extraProps} />
         ) : (
           <input {...commonProps} {...extraProps} />
         );
       }
 
-      if (!s.stdTextFieldMUI) return null;
+      if (!s.stdTextFieldMUI) {
+        return null;
+      }
 
       return (
         <s.stdTextFieldMUI
-          field={p.field}
-          onChange={(value, e) => p.onChange(value, e)}
+          {...p}
           commonProps={commonProps}
-          muiProps={p.muiProps}
-          events={p.events}
-          error_msgs={p.error_msgs}
         />
       );
     }

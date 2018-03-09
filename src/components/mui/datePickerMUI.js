@@ -1,3 +1,4 @@
+// @flow
 // Safest way to confirm valid date object
 // Object.prototype.toString.call(date) === '[object Date]'
 // https://stackoverflow.com/questions/643782/how-to-check-whether-an-object-is-a-date
@@ -6,31 +7,23 @@ const React = require("react");
 
 import DatePicker from "material-ui/DatePicker";
 import CloseSVG from "material-ui/svg-icons/navigation/close";
+import type { MuiProps } from "./types";
+import type { ComponentProps } from "../types";
 
 require("date-util");
 
-const DatePickerMUI = props => {
+const DatePickerMUI = (props: ComponentProps & MuiProps) => {
   function commonDateFormat(d) {
     return d.format("ddd, mmm dS yy");
   }
 
-  let muiProps = Object.assign({}, props.muiProps);
-  if (!muiProps.hasOwnProperty("floatingLabelText")) {
-    muiProps.floatingLabelText = props.field.label;
-  }
-  if (!muiProps.hasOwnProperty("formatDate")) {
-    muiProps.formatDate = commonDateFormat;
-  }
-  if (!muiProps.hasOwnProperty("mode")) {
-    muiProps.mode = "landscape";
-  }
-  if (!muiProps.hasOwnProperty("minDate")) {
+  function getMinDate() {
     // Set to today -300 years (else its mui default is today-100 years)
     let minDate = new Date();
     minDate.setHours(0, 0, 0, 0); // No time
     minDate = minDate.getTime() - 1000 * 60 * 60 * 24 * 365 * 300;
     minDate = new Date(minDate);
-    muiProps.minDate = minDate;
+    return minDate;
   }
 
   return (
@@ -38,9 +31,12 @@ const DatePickerMUI = props => {
       {/* The span wrapper is needed to place the CloseSVG button in the correct place */}
       {/* value property should be a Date object or null */}
       <DatePicker
-        {...muiProps}
-        {...props.stdProps}
-        value={props.stdProps.value || null}
+        {...props.commonProps}
+        floatingLabelText={props.manualProperties.muiProps.floatingLabelText || props.label}
+        formatDate={props.manualProperties.muiProps.formatDate || commonDateFormat}
+        mode={props.manualProperties.muiProps.mode || "landscape"}
+        minDate={props.manualProperties.muiProps.minDate || getMinDate()}
+        value={props.commonProps.value || null}
         autoOk={true}
         onChange={(event, date) => {
           props.onChange(
@@ -50,11 +46,7 @@ const DatePickerMUI = props => {
             event
           );
         }}
-        errorText={
-          props.error_msgs ? props.error_msgs[0] : null
-        }
-        data-ignored={true}
-        onFocus={props.events.onFocus}
+        errorText={props.error_msgs ? props.error_msgs[0] : null}
       />
       {props.stdProps.value ? (
         <CloseSVG
@@ -66,8 +58,7 @@ const DatePickerMUI = props => {
             width: 20,
             height: 20
           }}
-          onClick={(event) => {
-            let s = Object.assign({}, fs);
+          onClick={event => {
             props.onChange(null, event);
           }}
         />

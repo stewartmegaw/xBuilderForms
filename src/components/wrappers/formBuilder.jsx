@@ -1,7 +1,10 @@
+/* global moment */
+// @flow
+
 // TODO this.prop.msgStyle=="popup" is not implemented yet
 // because its not required yet!
 
-const React = require("react");
+import React, { Fragment } from "react";
 
 import Form from "../form";
 
@@ -11,11 +14,9 @@ require("../../style/global.inject.css");
 
 // const AppState = require("xbuilder-core/lib/appState");
 
-const parseUrl = require("parse-url");
+// const parseUrl = require("parse-url");
 
 import MuiThemeProvider from "material-ui/styles/MuiThemeProvider";
-import getMuiTheme from "material-ui/styles/getMuiTheme";
-const muiTheme = getMuiTheme();
 
 import formComponentsStore from "../../stores/formComponentsStore";
 import formComponentsActions from "../../actions/formComponentsActions";
@@ -65,12 +66,12 @@ export default class FormBuilder extends React.Component {
       let data = {};
       let fields = this.props.form.fields;
       for (let i = 0; i < fields.length; i++) {
-        if (fields[i].type == "file") {
+        if (fields[i].type === "file") {
           filePresent = true;
         }
 
         let defaultValue = fields[i].defaultValue;
-        if (defaultValue && defaultValue.length != 0) {
+        if (defaultValue && defaultValue.length !== 0) {
           console.log("TODO: Add back default value code");
           // switch (defaultValue.type) {
           //   case "stateProperty":
@@ -173,7 +174,9 @@ export default class FormBuilder extends React.Component {
     formComponentsActions.valueChanged(
       Object.assign(store.data, newData || {})
     );
-    if (cb) cb();
+    if (cb) {
+      cb();
+    }
   }
 
   getFieldValue(field) {
@@ -183,24 +186,25 @@ export default class FormBuilder extends React.Component {
 
   getErrorsMsgs(field) {
     let all_error_msgs = formComponentsStore.getStore().error_msgs;
-    
+
     if (field) {
       return all_error_msgs[field];
     }
-    
+
     return all_error_msgs;
   }
 
   // isValid is a boolean wrapper for validate()
   isValid(field, highlight, scroll) {
     let errors = this.validate(field, highlight, scroll);
-    if (!errors) return true;
-    else return false;
+    if (!errors) {
+      return true;
+    }
+    return false;
   }
 
   // return error messages or null is valid
   validate(field, highlight, scroll) {
-    let s = this.state;
     let p = this.props;
     let store = formComponentsStore.getStore();
 
@@ -217,11 +221,12 @@ export default class FormBuilder extends React.Component {
 
       // Before validating we must alter keys in the constraints
       // object that belong to an input with an array value
-      for (let key in formValues)
+      for (let key in formValues) {
         if (key.indexOf("[]") > -1) {
           constraints[key] = constraints[key.replace("[]", "")];
           delete constraints[key.replace("[]", "")];
         }
+      }
     } else {
       // Only validate field
       formValues[field] = store.data[field];
@@ -232,10 +237,10 @@ export default class FormBuilder extends React.Component {
 
     if (errors) {
       if (highlight) {
-         if (field) {
+        if (field) {
           // Merge these errors with any errors from other fields
           errors = Object.assign({}, store.error_msgs, errors);
-         }
+        }
         formComponentsActions.newErrors(errors);
       }
 
@@ -243,21 +248,26 @@ export default class FormBuilder extends React.Component {
         // Scroll to error field with with smallest position
         let smallestIndex = null;
         let errorFieldNames = Object.keys(errors);
-        for (let j = 0; j < errorFieldNames.length; j++)
-          for (let i = 0; i < this.props.form.fields.length; i++)
-            if (this.props.form.fields[i].name == errorFieldNames[j]) {
+        for (let j = 0; j < errorFieldNames.length; j++) {
+          for (let i = 0; i < this.props.form.fields.length; i++) {
+            if (this.props.form.fields[i].name === errorFieldNames[j]) {
               if (
                 smallestIndex === null ||
                 this.props.form.fields[i].position < smallestIndex
-              )
+              ) {
                 smallestIndex = i;
+              }
               break;
             }
+          }
+        }
         if (smallestIndex !== null) {
           let elm = document.getElementById(
             p.form.name + this.props.form.fields[smallestIndex].name
           );
-          if (elm) elm.scrollIntoView({ behavior: "smooth" });
+          if (elm) {
+            elm.scrollIntoView({ behavior: "smooth" });
+          }
         }
       }
     }
@@ -299,7 +309,7 @@ export default class FormBuilder extends React.Component {
                     validate.extend(validate.validators.datetime, {
                       // The value is guaranteed not to be null or undefined but otherwise it
                       // could be anything.
-                      parse: function(value, options) {
+                      parse: function(value) {
                         return +moment.utc(value);
                       },
                       // Input is a unix timestamp
@@ -342,12 +352,16 @@ export default class FormBuilder extends React.Component {
           }
           break;
       }
+
+      return false;
     });
 
     if (allLoaded) {
       let _this = this;
       this.setState({ componentsLoaded: true }, function() {
-        if (_this.props.componentsLoaded) _this.props.componentsLoaded();
+        if (_this.props.componentsLoaded) {
+          _this.props.componentsLoaded();
+        }
       });
     }
   }
@@ -364,16 +378,20 @@ export default class FormBuilder extends React.Component {
       return a.position - b.position;
     });
 
-    for (let i = 0; i < orderedFields.length; i++)
+    for (let i = 0; i < orderedFields.length; i++) {
       fields.push(this.getField(orderedFields[i]));
+    }
 
     return fields;
   }
 
   getFieldByName(name) {
-    for (let i = 0; i < this.props.form.fields.length; i++)
-      if (this.props.form.fields[i].name == name)
+    for (let i = 0; i < this.props.form.fields.length; i++) {
+      if (this.props.form.fields[i].name === name) {
         return this.getField(this.props.form.fields[i]);
+      }
+    }
+    return null;
   }
 
   getField(field) {
@@ -386,14 +404,16 @@ export default class FormBuilder extends React.Component {
       p.fieldClassName && p.fieldClassName[field.name]
         ? p.fieldClassName[field.name]
         : null;
-    if (p.globalFieldClassName)
+    if (p.globalFieldClassName) {
       className = [p.globalFieldClassName, className].join(" ");
+    }
     let errorClass =
       p.fieldErrorClassName && p.fieldErrorClassName[field.name]
         ? p.fieldErrorClassName[field.name]
         : null;
-    if (p.globalErrorClassName)
+    if (p.globalErrorClassName) {
       errorClass = [p.globalErrorClassName, className].join(" ");
+    }
     let events =
       p.fieldEvents && p.fieldEvents[field.name]
         ? p.fieldEvents[field.name]
@@ -401,33 +421,43 @@ export default class FormBuilder extends React.Component {
 
     // Merge fieldProperties passed in via fieldProperties prop with
     // those passed in via form prop
-    let fieldProperties = this.props.form.fieldProperties ? this.props.form.fieldProperties[field.name] || null : null;
+    let fieldProperties = this.props.form.fieldProperties
+      ? this.props.form.fieldProperties[field.name] || null
+      : null;
     fieldProperties =
       p.fieldProperties && p.fieldProperties[field.name]
         ? Object.assign(fieldProperties || {}, p.fieldProperties[field.name])
         : fieldProperties;
 
-    let component = this.getComponent(
+    let component = this.getComponent({
       field,
       style,
       className,
       events,
       fieldProperties,
       errorClass
-    );
-    if (p.fieldWrappers && p.fieldWrappers[field.name])
+    });
+    if (p.fieldWrappers && p.fieldWrappers[field.name]) {
       return p.fieldWrappers[field.name](component);
-    else return component;
+    }
+
+    return component;
   }
 
-  getComponent(field, style, className, events, manualProperties, errorClass) {
+  getComponent({
+    field,
+    style,
+    className,
+    events,
+    fieldProperties,
+    errorClass
+  }) {
     let _this = this;
     let s = this.state;
     let p = this.props;
     let store = formComponentsStore.getStore();
 
     let component;
-    let options = Object.assign({}, field.options);
 
     switch (field.type) {
       case "hidden":
@@ -453,14 +483,22 @@ export default class FormBuilder extends React.Component {
           component = (
             <MyComponent
               key={field.name}
-              form={p.form}
-              field={field}
+              stdProps={{
+                id: p.form.name + field.name,
+                name: field.name
+              }}
+              type={field.type}
+              label={field.label}
+              options={field.options}
               className={className}
               style={style}
               events={events}
-              onChangeFinished={p.onChangeFinished}
               errorClass={errorClass}
-              {...manualProperties}
+              manualProperties={fieldProperties}
+              formScope={{
+                form: p.form,
+                onChangeFinished: p.onChangeFinished
+              }}
             />
           );
         }
@@ -637,7 +675,6 @@ export default class FormBuilder extends React.Component {
   }
 
   render() {
-    let _this = this;
     let s = this.state;
     let p = this.props;
 
@@ -645,7 +682,7 @@ export default class FormBuilder extends React.Component {
     // rendering is reusable
 
     return (
-      <MuiThemeProvider muiTheme={muiTheme}>
+      <MuiThemeProvider>
         {/*
           We replaced the <Form> "updated" prop with flux state management.
           Must add back a means of displaying success / error msgs.
@@ -674,10 +711,10 @@ export default class FormBuilder extends React.Component {
           disableClickOnSubmit={p.disableClickOnSubmit}
           validate={this.validate}
         >
-          {p.msgStyle != "popup" && s.global_error_msg ? (
+          {p.msgStyle !== "popup" && s.global_error_msg ? (
             <div style={{ color: "red" }}>{s.global_error_msg}</div>
           ) : null}
-          {p.msgStyle != "popup" && s.success_msg ? (
+          {p.msgStyle !== "popup" && s.success_msg ? (
             <div style={p.successMsgStyle || {}}>{s.success_msg}</div>
           ) : null}
           {p.layout
@@ -693,18 +730,18 @@ export default class FormBuilder extends React.Component {
 
           {p.manual ? p.children : null}
 
-          {p.hiddenInputs
-            ? Object.keys(p.hiddenInputs).map((prop, i) => {
-                return (
-                  <input
-                    type="hidden"
-                    key={i}
-                    name={prop}
-                    value={p.hiddenInputs[prop]}
-                  />
-                );
-              })
-            : null}
+          {p.hiddenInputs ? (
+            <Fragment>
+              {Object.keys(p.hiddenInputs).map((prop, i) => (
+                <input
+                  type="hidden"
+                  key={i}
+                  name={prop}
+                  value={p.hiddenInputs[prop]}
+                />
+              ))}
+            </Fragment>
+          ) : null}
         </Form>
       </MuiThemeProvider>
     );

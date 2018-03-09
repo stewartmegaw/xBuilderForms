@@ -1,12 +1,12 @@
 const React = require("react");
 
-var validate = require("validate.js");
+let validate = require("validate.js");
 
 import "whatwg-fetch";
 
 import intersect from "boundless-utils-object-intersection";
 
-var style = require("../style/form.css");
+// let style = require("../style/form.css");
 
 import formComponentsActions from "../actions/formComponentsActions";
 
@@ -24,14 +24,14 @@ export default class Form extends React.Component {
   }
 
   validate(event) {
-    var _this = this;
+    let _this = this;
 
-    var errors = this.props.validate(null, true, true);
+    let errors = this.props.validate(null, true, true);
 
     // TODO Hack to validate tag count until https://github.com/ansman/validate.js/pull/184 implemented
     // if(this.props.id == 'form_tripCreateNew' || this.props.id == 'form_tripCreateDraft' || this.props.id == 'form_completeProfileStep1' || this.props.id == 'form_editHomeInterests')
     // {
-    //  var tags = document.getElementById(this.props.id).elements["tags[]"];
+    //  let tags = document.getElementById(this.props.id).elements["tags[]"];
     //  if(!tags || !tags.length || tags.length < 3)
     //  {
     //    if(!errors)
@@ -46,12 +46,12 @@ export default class Form extends React.Component {
       event.preventDefault();
     }
 
-    if (!errors && this.props.form.requestType == "json") {
+    if (!errors && this.props.form.requestType === "json") {
       // Prevent form submission
       event.preventDefault();
 
-      var form = document.querySelector("form#" + this.props.id);
-      var formData = new FormData(form);
+      let form = document.querySelector("form#" + this.props.id);
+      let formData = new FormData(form);
 
       // Temporarily setting the form.success = true is a quick way to disable any buttons
       // this.props.updated(Object.assign({}, s, { success: 1 }));
@@ -65,16 +65,20 @@ export default class Form extends React.Component {
         credentials: "include"
       })
         .then(function(response) {
-          if (response.ok) return response.json();
-          else throw new Error("Network response error");
+          if (response.ok) {
+            return response.json();
+          }
+
+          throw new Error("Network response error");
         })
         .then(function(r) {
           console.log(r);
           if (r.redirect302) {
             window.location = r.redirect302;
-          }
-          else {
-            console.log("TODO: Implement success procedure when not a redirect");
+          } else {
+            console.log(
+              "TODO: Implement success procedure when not a redirect"
+            );
             // _this.props.updated(Object.assign({}, s, r.form));
           }
           if (_this.manualSubmitCb) {
@@ -101,24 +105,25 @@ export default class Form extends React.Component {
 
   componentWillReceiveProps(nextProps) {
     // componentsLoaded not used for manual forms
-    if (nextProps.componentsLoaded && !this.props.componentsLoaded)
+    if (nextProps.componentsLoaded && !this.props.componentsLoaded) {
       this.componentsLoaded();
+    }
   }
 
   componentsLoaded() {
     // Validate any non-empty field immediately
     // Useful if the user is editing a form for example - they
     // will want to see error msgs immediately on page load
-    var form = document.querySelector("form#" + this.props.id);
+    let form = document.querySelector("form#" + this.props.id);
 
-    var data = validate.collectFormValues(form, { trim: true });
-    var constraints = Object.assign({}, this.props.form.constraints);
+    let data = validate.collectFormValues(form, { trim: true });
+    let constraints = Object.assign({}, this.props.form.constraints);
 
     // Remove non empty fields
-    for (var field in data) {
+    for (let field in data) {
       if (
         data[field] === null ||
-        data[field] === undefined ||
+        data[field] === "undefined" ||
         data[field] === ""
       ) {
         delete data[field];
@@ -127,7 +132,7 @@ export default class Form extends React.Component {
     // Now remove constraints not in data
     constraints = intersect(constraints, data);
 
-    var errors = validate(data, constraints);
+    let errors = validate(data, constraints);
 
     if (errors) {
       formComponentsActions.newErrors(errors);
@@ -146,10 +151,10 @@ export default class Form extends React.Component {
   }
 
   render() {
-    var _this = this;
-    var p = this.props;
+    let _this = this;
+    let p = this.props;
 
-    var form_props = {
+    let form_props = {
       id: p.id,
       method: p.method,
       action: p.action,
@@ -162,7 +167,9 @@ export default class Form extends React.Component {
       onClick: p.submitOnClick ? () => this.manualSubmit() : null
     };
 
-    if (p.file) form_props.encType = "multipart/form-data";
+    if (p.file) {
+      form_props.encType = "multipart/form-data";
+    }
 
     return (
       <form

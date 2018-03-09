@@ -15,9 +15,8 @@ module.exports = Component(
     componentWillMount() {
       let _this = this;
 
-      if (this.props.muiProps) {
-        require.ensure([], require => {
-          let component = require("./mui/datePickerMUI");
+      if (this.props.manualProperties.muiProps) {
+        import("./mui/datePickerMUI").then(component => {
           _this.setState({ stdDatePickerMUI: component });
         });
       }
@@ -30,77 +29,65 @@ module.exports = Component(
     }
 
     render() {
-      let _this = this;
       let p = this.props;
       let s = this.state;
 
-      let stdProps = {
-        id: p.id,
-        name: "dummy" + p.name,
+      let commonProps = Object.assign({}, p.stdProps, {
+        name: "dummy" + p.stdProps.name,
+        value: !p.stdProps.value
+          ? ""
+          : new Date(this.getLocalTime(p.stdProps.value)),
         style: p.style || {},
         className: p.className,
-        "data-ignore": true,
-        onFocus: p.events.onFocus,
-        value: !p.value
-          ? ""
-          : new Date(this.getLocalTime(p.value))
-      };
+        ["data-ignore"]: true,
+        onFocus: p.events.onFocus
+      });
 
       let picker = null;
 
-      if (p.customRender) {
-        let onChange = (d, event) => {
-          let date = d;
-          // date can be a string like yyyy-mm-dd or a Date object
-          if (Object.prototype.toString.call(date) === "[object String]") {
-            date = new Date(date);
-          }
-          _this.onChange(date ? date.getTime() : "", event);
-        };
-        picker = p.customRender(stdProps, onChange);
-      } else {
-        if (!p.muiProps) {
-          stdProps.onChange = e => {
-            this.onChange(
-              e.target.value ? new Date(e.target.value).getTime() : "",
-              e
-            );
-          };
-          picker = (
-            <input
-              type="date"
-              {...stdProps}
-              value={
-                stdProps.value
-                  ? stdProps.value.toISOString().substring(0, 10)
-                  : ""
-              }
-            />
-          );
-        }
-
-        if (s.stdDatePickerMUI) {
-          picker = (
-            <s.stdDatePickerMUI
-              field={p.field}
-              onChange={(v, e) => this.onChange(v, e)}
-              stdProps={stdProps}
-              muiProps={p.muiProps}
-              events={p.events}
-              updated={p.updated}
-              error_msgs={p.error_msgs}
-            />
-          );
-        }
+      // if (p.customRender) {
+      //   let onChange = (d, event) => {
+      //     let date = d;
+      //     // date can be a string like yyyy-mm-dd or a Date object
+      //     if (Object.prototype.toString.call(date) === "[object String]") {
+      //       date = new Date(date);
+      //     }
+      //     _this.onChange(date ? date.getTime() : "", event);
+      //   };
+      //   picker = p.customRender(commonProps, onChange);
+      // } else {
+      if (!p.manualProperties.muiProps) {
+        picker = (
+          <input
+            type="date"
+            onChange={e => {
+              p.onChange(
+                e.target.value ? new Date(e.target.value).getTime() : "",
+                e
+              );
+            }}
+            {...commonProps}
+            value={
+              commonProps.value
+                ? commonProps.value.toISOString().substring(0, 10)
+                : ""
+            }
+          />
+        );
       }
+
+      if (s.stdDatePickerMUI) {
+        picker = <s.stdDatePickerMUI {...p} commonProps={commonProps} />;
+      }
+      // }
 
       return (
         <span>
           {picker}
           <input
             type="hidden"
-            name={p.name}
-            value={!p.value ? "" : this.getLocalTime(p.value)}
+            name={p.stdProps.name}
+            value={!p.stdProps.value ? "" : this.getLocalTime(p.stdProps.value)}
           />
         </span>
       );

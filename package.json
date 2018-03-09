@@ -78,7 +78,7 @@
     "jquery-param": "^1.0.0",
     "js-beautify": "^1.7.5",
     "keymirror": "^0.1.1",
-    "material-ui": "0.18.3",
+    "material-ui": "^0.20.0",
     "parse-url": "^3.0.2",
     "react": "^16.1.0",
     "react-codemirror": "^1.0.0",

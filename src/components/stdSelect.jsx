@@ -1,4 +1,4 @@
-const React = require("react");
+import React, { Fragment } from "react";
 
 import Component from "./wrappers/component";
 
@@ -15,9 +15,8 @@ module.exports = Component(
     componentWillMount() {
       let _this = this;
 
-      if (this.props.muiProps) {
-        require.ensure([], require => {
-          let component = require("./mui/selectMUI");
+      if (this.props.manualProperties.muiProps) {
+        import("./mui/selectMUI").then(component => {
           _this.setState({ stdSelectMUI: component });
         });
       }
@@ -26,27 +25,25 @@ module.exports = Component(
     getValue() {
       let p = this.props;
 
-      let valuePresent =
-        p.value !== null &&
-        p.value !== "undefined";
+      let valuePresent = p.stdProps.value !== null && p.stdProps.value !== "undefined";
 
-      if (p.field.type === "multiSelect") {
+      if (p.type === "multiSelect") {
         if (!valuePresent) {
           return [];
         }
-        if (p.field.options.valueCast === "string") {
+        if (p.options.valueCast === "string") {
           let vals = [];
-          p.value.map(v => {
+          p.stdProps.value.map(v => {
             vals.push(v.toString());
           });
           return vals;
         }
-        return p.value;
+        return p.stdProps.value;
       }
 
-      return valuePresent && p.field.options.valueCast === "string"
-        ? p.value.toString()
-        : p.value;
+      return valuePresent && p.options.valueCast === "string"
+        ? p.stdProps.value.toString()
+        : p.stdProps.value;
     }
 
     render() {
@@ -55,36 +52,39 @@ module.exports = Component(
 
       let value = this.getValue();
 
-      let stdProps = {
-        id: p.id,
-        name: p.name,
+      let commonProps = Object.assign({}, p.stdProps, {
         style: p.style || {},
         className: p.className,
-        value: value,
-        multiple: p.field.type === "multiSelect" ? true : false
-      };
+        multiple: p.type === "multiSelect" ? true : false
+      });
 
-      if (!p.muiProps) {
-        stdProps.onChange = e => {
-          this.onChange(e.target.value.trim(), e);
-        };
+      delete commonProps.value;
+
+      if (!p.manualProperties.muiProps) {
+        let options = p.field.options;
+
         return (
-          <select {...stdProps}>
-            {p.field.options.valueOptions ? Object.keys(p.field.options.valueOptions.values).map(function(v, i) {
-              return (
-                <option
-                  checked={
-                    stdProps.multiple
-                      ? value.indexOf(p.field.options.valueOptions.values[i]) > -1
-                      : false
-                  }
-                  value={p.field.options.valueOptions.values[i]}
-                  key={i}
-                >
-                  {p.field.options.valueOptions.text[i]}
-                </option>
-              );
-            }):null}
+          <select
+            {...commonProps}
+            onChange={e => p.onChange(e.target.value.trim(), e)}
+          >
+            {options.valueOptions ? (
+              <Fragment>
+                {Object.keys(options.valueOptions.values).map((v, i) => (
+                  <option
+                    checked={
+                      commonProps.multiple
+                        ? value.indexOf(options.valueOptions.values[i]) > -1
+                        : false
+                    }
+                    value={options.valueOptions.values[i]}
+                    key={i}
+                  >
+                    {options.valueOptions.text[i]}
+                  </option>
+                ))}
+              </Fragment>
+            ) : null}
           </select>
         );
       }
@@ -93,16 +93,7 @@ module.exports = Component(
         return null;
       }
 
-      return (
-        <s.stdSelectMUI
-          state={s}
-          field={p.field}
-          onChange={(v, e) => this.onChange(v, e)}
-          stdProps={stdProps}
-          muiProps={p.muiProps}
-          error_msgs={this.props.error_msgs}
-        />
-      );
+      return <s.stdSelectMUI {...p} commonProps={commonProps} />;
     }
   }
-)
+);
