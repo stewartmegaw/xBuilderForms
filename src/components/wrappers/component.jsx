@@ -4,6 +4,7 @@ import React from "react";
 import type { ComponentType } from "react";
 import formComponentsActions from "../../actions/formComponentsActions";
 import formComponentsStore from "../../stores/formComponentsStore";
+import type { ComponentProps, WrapperProps } from "../types";
 /*
 Some nice info on the difference between layoutExtended & layoutWrapper
 https://medium.com/@franleplant/react-higher-order-components-in-depth-cf9032ee6c3e#.t3r6zwj02
@@ -19,35 +20,28 @@ Use this to:
 3) Abstract the state
 */
 
-type Props = {
-  id: string,
-  name: string,
-  form: {name:string, constraints:{}, fields: Array<{}>},
-  field: { name: string },
-  events:{onChangeFinished: Function},
-  onChangeFinished: Function
-};
-
 type State = {
   value: mixed,
-  error_msgs: mixed
+  error_msgs: mixed,
+  disabled: boolean
 };
 
-
-export default function HOC<IP:*, OP:Props>(
-  WrappedComponent: ComponentType<IP>
-): ComponentType<OP> {
-  return class extends React.Component<OP, State> {
+const WrapperComponent = function HOC<IP: WrapperProps, OP: WrapperProps & ComponentProps>(
+  WrappedComponent: ComponentType<OP>
+): ComponentType<IP> {
+  return class extends React.Component<IP, State> {
     onChange: Function;
-    onFormComponentsStoreUpdated: Function;
+    onFormComponentsStoreUpdated: Function;;
+    getLinkedFields: Function;
 
-    constructor(props: OP) {
+    constructor(props: IP) {
       super(props);
       this.onChange = this.onChange.bind(this);
       this.onFormComponentsStoreUpdated = this.onFormComponentsStoreUpdated.bind(
         this
       );
-      this.state = { value: "", error_msgs: null };
+      this.getLinkedFields = this.getLinkedFields.bind(this);
+      this.state = { value: "", error_msgs: null, disabled: false };
     }
 
     componentWillMount() {
@@ -101,7 +95,10 @@ export default function HOC<IP:*, OP:Props>(
           "form#" + "form_" + this.props.formScope.form.name
         );
         let formValues = validate.collectFormValues(form, { trim: true });
-        let errors = validate(formValues, this.props.formScope.form.constraints);
+        let errors = validate(
+          formValues,
+          this.props.formScope.form.constraints
+        );
         // Update errors but only for this field
         if (errors) {
           all_error_msgs = errors;
@@ -132,7 +129,10 @@ export default function HOC<IP:*, OP:Props>(
       let linkedFields = [];
       // TODO Remove p.state after upgrade
       this.props.formScope.form.fields.map(function(_field) {
-        if (_field.options && _field.options.linkedTo === _this.props.stdProps.name) {
+        if (
+          _field.options &&
+          _field.options.linkedTo === _this.props.stdProps.name
+        ) {
           linkedFields.push(_field);
         }
       });
@@ -142,25 +142,27 @@ export default function HOC<IP:*, OP:Props>(
     render() {
       // Update the passed stdProps object
       let passedProps = Object.assign({}, this.props);
-      passedProps.stdProps = Object.assign({}, this.props.stdProps, {value: this.state.value});
+      passedProps.stdProps = Object.assign({}, this.props.stdProps, {
+        value: this.state.value
+      });
 
       // Remove form scoped props which are only needed in this HOC
       delete passedProps.formScope;
 
       let extraProps = {
-        error_msgs: this.state.error_msgs,
+        error_msgs: [], // this.state.error_msgs,
         disabled: this.state.disabled,
         getLinkedFields: this.getLinkedFields,
         onChange: this.onChange
       };
 
       /* TODO: setChild needs updated */
-      return (
-        <WrappedComponent {...passedProps} {...extraProps} />
-      );
+      return <WrappedComponent {...passedProps} {...extraProps} />;
     }
   };
-}
+};
+
+export default WrapperComponent;
 
 /*
 HOC Type 2: Inheritance Inversion
@@ -179,7 +181,6 @@ Use this to:
 //         // });
 //         return ss;
 //       }
-
 
 //       // Legacy code from weestay. Probably still works
 //       // and will be useful in future

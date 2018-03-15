@@ -1,12 +1,14 @@
 [ignore]
+.*/node_modules/config-chain/.*
 
 [include]
 
 [libs]
-./flow-typed/
+/flow-typed/
 
 [lints]
 
 [options]
+module.ignore_non_literal_requires=true
 
 [strict]

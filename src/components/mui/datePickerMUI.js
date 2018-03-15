@@ -1,4 +1,3 @@
-// @flow
 // Safest way to confirm valid date object
 // Object.prototype.toString.call(date) === '[object Date]'
 // https://stackoverflow.com/questions/643782/how-to-check-whether-an-object-is-a-date

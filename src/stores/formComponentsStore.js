@@ -1,7 +1,11 @@
+// @flow
+
 import Store from "./store";
 import Dispatcher from "../dispatcher";
 
-let error_msgs = {};
+type Error_Msgs = { [ string ] : Array<string> } | {};
+
+let error_msgs: Error_Msgs = {};
 let data = {};
 
 class FormComponentsStore extends Store {
@@ -11,7 +15,7 @@ class FormComponentsStore extends Store {
     Dispatcher.register(this.registerActions.bind(this));
   }
 
-  registerActions(action) {
+  registerActions(action: {actionType: string, payload: {data?: any, error_msgs: Error_Msgs}}) {
     switch (action.actionType) {
       case "NEW_ERRORS":
         error_msgs = action.payload || {};
@@ -28,7 +32,7 @@ class FormComponentsStore extends Store {
   }
 
   // Returns the current store's state.
-  getStore() {
+  getStore(): {data: Object, error_msgs: Error_Msgs} {
     return {
       data,
       error_msgs

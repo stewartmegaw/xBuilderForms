@@ -1,27 +1,29 @@
 // @flow
 
 import React from "react";
-import type { Node } from "react";
+import type { ComponentType } from "react";
 
-import Component from "./wrappers/component";
+import WrapperComponent from "./wrappers/component";
 
-type Props = {
-  id: string,
-  name: string,
-  className: string
-};
+import type { WrapperProps, ComponentProps } from "./types";
+
+// type Props = {
+//   id: string,
+//   name: string,
+//   className: string
+// };
 
 type State = {
-  stdButtonMUI: Node
+  stdButtonMUI?: ComponentType<*> | any // TODO: Flow: remove 'any'
 };
 
-module.exports = Component(
-  class StdButton extends React.Component<Props, State> {
+module.exports = WrapperComponent(
+  class StdButton extends React.Component<WrapperProps & ComponentProps, State> {
     constructor(props) {
       super(props);
 
       this.state = {
-        stdButtonMUI: null
+
       };
     }
 
@@ -39,7 +41,7 @@ module.exports = Component(
       let p = this.props;
       let s = this.state;
 
-      let commonProps = Object.assign({}, p.stdProps, { 
+      let commonProps = Object.assign({}, p.stdProps, {
         type: p.type,
         style: p.style || {},
         className: p.className,

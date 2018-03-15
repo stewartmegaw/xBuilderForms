@@ -5,6 +5,7 @@
 // because its not required yet!
 
 import React, { Fragment } from "react";
+import type { ComponentType, ChildrenArray } from "react";
 
 import Form from "../form";
 
@@ -21,6 +22,8 @@ import MuiThemeProvider from "material-ui/styles/MuiThemeProvider";
 import formComponentsStore from "../../stores/formComponentsStore";
 import formComponentsActions from "../../actions/formComponentsActions";
 
+import type { WrapperProps, ComponentProps, Field, Form as FormType } from "../types";
+
 export const typeMappings = {
   text: "stdTextField",
   password: "stdTextField",
@@ -32,8 +35,46 @@ export const typeMappings = {
   submit: "stdButton"
 };
 
-export default class FormBuilder extends React.Component {
-  constructor(props) {
+type Props = {
+  manual?: boolean,
+  form: FormType,
+  noFormTag: noFormTag,
+  componentsLoaded?: Function,
+  fieldStyles?: {},
+  fieldClassName?: {},
+  fieldErrorClassName?: {},
+  fieldEvents?: {},
+  fieldProperties?: {},
+  fieldWrappers?: {},
+  onChangeFinished?: Function,
+  className?: string,
+  style?: {},
+  msgStyle?: {},
+  submitOnClick?: Function,
+  disableClickOnSubmit?: Function,
+  layout?: Function,
+  children?: ChildrenArray<*>,
+  hiddenInputs: {},
+  successMsgStyle?: {}
+};
+
+type State = {
+  components: { [string]: ComponentType<*> },
+  filePresent: boolean,
+  componentsLoaded: boolean,
+  action: string
+};
+
+export default class FormBuilder extends React.Component<Props, State> {
+  clones: {};
+  validate: Function;
+  getFieldByName: Function;
+  getField: Function;
+  getComponent: Function;
+  initialiseFields: Function;
+  fetchComponents: Function;
+
+  constructor(props: Props) {
     super(props);
 
     this.clones = {};
@@ -49,7 +90,8 @@ export default class FormBuilder extends React.Component {
     this.state = {
       components: {},
       filePresent: false,
-      componentsLoaded: false
+      componentsLoaded: false,
+      action: props.form.action || ""
     };
 
     this.initialiseFields();
@@ -139,7 +181,7 @@ export default class FormBuilder extends React.Component {
 
       let store = formComponentsStore.getStore();
       formComponentsActions.valueChanged(
-        Object.assign(this.props.data || {}, data, store.data)
+        Object.assign(this.props.data || {}, this.props.form.data || {}, data, store.data)
       );
     }
 
@@ -165,11 +207,11 @@ export default class FormBuilder extends React.Component {
     this.fetchComponents();
   }
 
-  updateAction(action, cb) {
+  updateAction(action: string, cb: Function) {
     this.setState({ action: action }, cb);
   }
 
-  updateData(newData, cb) {
+  updateData(newData: {}, cb: Function) {
     let store = formComponentsStore.getStore();
     formComponentsActions.valueChanged(
       Object.assign(store.data, newData || {})
@@ -179,12 +221,12 @@ export default class FormBuilder extends React.Component {
     }
   }
 
-  getFieldValue(field) {
+  getFieldValue(field: string) {
     let store = formComponentsStore.getStore();
     return store.data[field];
   }
 
-  getErrorsMsgs(field) {
+  getErrorsMsgs(field?: string) {
     let all_error_msgs = formComponentsStore.getStore().error_msgs;
 
     if (field) {
@@ -195,7 +237,7 @@ export default class FormBuilder extends React.Component {
   }
 
   // isValid is a boolean wrapper for validate()
-  isValid(field, highlight, scroll) {
+  isValid(field: string, highlight: boolean, scroll: boolean) {
     let errors = this.validate(field, highlight, scroll);
     if (!errors) {
       return true;
@@ -204,7 +246,7 @@ export default class FormBuilder extends React.Component {
   }
 
   // return error messages or null is valid
-  validate(field, highlight, scroll) {
+  validate(field: string, highlight: boolean, scroll: boolean) {
     let p = this.props;
     let store = formComponentsStore.getStore();
 
@@ -297,7 +339,7 @@ export default class FormBuilder extends React.Component {
             break;
           default:
             if (!components[typeMappings[field.type]]) {
-              import("../" + [typeMappings[field.type]]).then(myMod => {
+              import("../" + typeMappings[field.type]).then(myMod => {
                 components[typeMappings[field.type]] = myMod;
                 _this.setState({ components: components }, () => {
                   if (field.type === "date") {
@@ -366,7 +408,7 @@ export default class FormBuilder extends React.Component {
     }
   }
 
-  submit(success_cb) {
+  submit(success_cb: Function) {
     this.refs.form.manualSubmit(success_cb);
   }
 
@@ -385,7 +427,7 @@ export default class FormBuilder extends React.Component {
     return fields;
   }
 
-  getFieldByName(name) {
+  getFieldByName(name: string) {
     for (let i = 0; i < this.props.form.fields.length; i++) {
       if (this.props.form.fields[i].name === name) {
         return this.getField(this.props.form.fields[i]);
@@ -394,7 +436,7 @@ export default class FormBuilder extends React.Component {
     return null;
   }
 
-  getField(field) {
+  getField(field: { name: string }) {
     let p = this.props;
     let style =
       p.fieldStyles && p.fieldStyles[field.name]
@@ -422,8 +464,8 @@ export default class FormBuilder extends React.Component {
     // Merge fieldProperties passed in via fieldProperties prop with
     // those passed in via form prop
     let fieldProperties = this.props.form.fieldProperties
-      ? this.props.form.fieldProperties[field.name] || null
-      : null;
+      ? this.props.form.fieldProperties[field.name] || {}
+      : {};
     fieldProperties =
       p.fieldProperties && p.fieldProperties[field.name]
         ? Object.assign(fieldProperties || {}, p.fieldProperties[field.name])
@@ -451,6 +493,13 @@ export default class FormBuilder extends React.Component {
     events,
     fieldProperties,
     errorClass
+  }: {
+    field: Field,
+    style: {},
+    className: string,
+    events: {},
+    fieldProperties: {},
+    errorClass: string
   }) {
     let _this = this;
     let s = this.state;
@@ -678,6 +727,8 @@ export default class FormBuilder extends React.Component {
     let s = this.state;
     let p = this.props;
 
+
+    let p_layout = p.layout;
     // Most of the MUI components in switch need an id passed so that server
     // rendering is reusable
 
@@ -699,16 +750,17 @@ export default class FormBuilder extends React.Component {
         <Form
           ref="form"
           id={"form_" + p.form.name}
+          noFormTag={p.noFormTag}
           form={p.form}
-          method={p.method || "POST"}
-          action={s.action}
+          method={p.form.method || "POST"}
+          action={s.action || ""}
           componentsLoaded={s.componentsLoaded}
           style={p.style || {}}
           className={(p.manual ? "" : "formDefaults ") + (p.className || "")}
-          msgStyle={p.msgStyle}
+          msgStyle={p.msgStyle || {}}
           file={s.filePresent}
-          submitOnClick={p.submitOnClick}
-          disableClickOnSubmit={p.disableClickOnSubmit}
+          submitOnClick={p.submitOnClick || null}
+          disableClickOnSubmit={p.disableClickOnSubmit || null}
           validate={this.validate}
         >
           {p.msgStyle !== "popup" && s.global_error_msg ? (
@@ -717,8 +769,8 @@ export default class FormBuilder extends React.Component {
           {p.msgStyle !== "popup" && s.success_msg ? (
             <div style={p.successMsgStyle || {}}>{s.success_msg}</div>
           ) : null}
-          {p.layout
-            ? p.layout(this.getFieldByName, this.getErrorsMsgs())
+          {p_layout
+            ? p_layout(this.getFieldByName, this.getErrorsMsgs())
             : this.getAllFields()}
 
           <input

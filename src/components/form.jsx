@@ -1,5 +1,7 @@
-const React = require("react");
+// @flow
 
+const React = require("react");
+import type { ChildrenArray } from "react";
 let validate = require("validate.js");
 
 import "whatwg-fetch";
@@ -10,8 +12,35 @@ import intersect from "boundless-utils-object-intersection";
 
 import formComponentsActions from "../actions/formComponentsActions";
 
-export default class Form extends React.Component {
-  constructor(props) {
+import type { Form as FormType } from "./types";
+
+type Props = {
+  id: string,
+  noFormTag: boolean,
+  form: FormType,
+  method: string,
+  action: string,
+  componentsLoaded: bool,
+  style: {},
+  className: string,
+  msgStyle:{},
+  file:boolean,
+  submitOnClick: Function | null,
+  disableClickOnSubmit: Function | null,
+  validate: Function,
+  children?: ChildrenArray<*>
+};
+
+type State = {
+  pointerEvents: string
+};
+
+export default class Form extends React.Component<Props, State> {
+  validate: Function;
+  manualSubmitCb: Function | null;
+  submitted: boolean;
+
+  constructor(props: Props) {
     super(props);
     this.state = { pointerEvents: "normal" };
     this.validate = this.validate.bind(this);
@@ -23,7 +52,7 @@ export default class Form extends React.Component {
     this.submitted = false;
   }
 
-  validate(event) {
+  validate(event: any) {
     let _this = this;
 
     let errors = this.props.validate(null, true, true);
@@ -50,7 +79,7 @@ export default class Form extends React.Component {
       // Prevent form submission
       event.preventDefault();
 
-      let form = document.querySelector("form#" + this.props.id);
+      let form = (document.querySelector("form#" + this.props.id): any);
       let formData = new FormData(form);
 
       // Temporarily setting the form.success = true is a quick way to disable any buttons
@@ -103,7 +132,7 @@ export default class Form extends React.Component {
     return errors ? false : true;
   }
 
-  componentWillReceiveProps(nextProps) {
+  componentWillReceiveProps(nextProps: {}) {
     // componentsLoaded not used for manual forms
     if (nextProps.componentsLoaded && !this.props.componentsLoaded) {
       this.componentsLoaded();
@@ -139,13 +168,13 @@ export default class Form extends React.Component {
     }
   }
 
-  submit(cb) {
+  submit(cb: Function) {
     console.log("Depreciated. Call submit in form builder instead");
     this.manualSubmit(cb);
   }
 
-  manualSubmit(success_cb) {
-    this.manualSubmitCb = success_cb;
+  manualSubmit(success_cb?: Function | null) {
+    this.manualSubmitCb = success_cb || null;
 
     this.refs.submitBtn.click();
   }
@@ -153,6 +182,9 @@ export default class Form extends React.Component {
   render() {
     let _this = this;
     let p = this.props;
+
+    if(p.noFormTag)
+      return p.children;
 
     let form_props = {
       id: p.id,
@@ -164,7 +196,8 @@ export default class Form extends React.Component {
       ),
       ref: "form",
       className: p.className,
-      onClick: p.submitOnClick ? () => this.manualSubmit() : null
+      onClick: p.submitOnClick ? () => this.manualSubmit() : null,
+      encType: ""
     };
 
     if (p.file) {
