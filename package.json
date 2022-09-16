@@ -79,7 +79,7 @@
     "js-beautify": "^1.7.5",
     "keymirror": "^0.1.1",
     "material-ui": "^0.20.0",
-    "parse-url": "^3.0.2",
+    "parse-url": "^8.1.0",
     "react": "^16.1.0",
     "react-codemirror": "^1.0.0",
     "react-dom": "^16.2.0",
